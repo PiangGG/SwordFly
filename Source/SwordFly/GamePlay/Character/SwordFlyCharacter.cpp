@@ -5,6 +5,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "../PlayerController/SwordFlyPlayerController.h"
 
 // Sets default values
 ASwordFlyCharacter::ASwordFlyCharacter()
@@ -14,13 +15,13 @@ ASwordFlyCharacter::ASwordFlyCharacter()
 
 	SpringArmComp=CreateDefaultSubobject<USpringArmComponent>(FName("springcomp"));
 	SpringArmComp->bUsePawnControlRotation = false;
-	SpringArmComp->SetAbsolute();
+	SpringArmComp->SetAbsolute(true);
 	SpringArmComp->TargetArmLength = 700.f;
 	SpringArmComp->SetupAttachment(RootComponent);
-
+	//RootComponent=SpringArmComp;
 	TiredCamera=CreateDefaultSubobject<UCameraComponent>(FName("Camera"));
 	TiredCamera->FieldOfView = 110.f;
-	TiredCamera->SetupAttachment(SpringArmComp);
+	TiredCamera->SetupAttachment(RootComponent);
 
 	bReplicates = true;
 	bAlwaysRelevant = true;
@@ -56,5 +57,67 @@ void ASwordFlyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+	PlayerInputComponent->BindAxis("MoveForword",this,&ASwordFlyCharacter::MoveForward);
+	PlayerInputComponent->BindAxis("MoveRight",this,&ASwordFlyCharacter::MoveRight);
+	PlayerInputComponent->BindAxis("RotateCamera",this,&ASwordFlyCharacter::RotateCamera);
+	PlayerInputComponent->BindAxis("ChangeCameraHeight",this,&ASwordFlyCharacter::ChangeCameraHeight);
+
+	PlayerInputComponent->BindAction("Jump",EInputEvent::IE_Pressed,this,&ACharacter::Jump);
+}
+
+void ASwordFlyCharacter::MoveForward(float amount)
+{
+	APlayerController *PC = Cast<APlayerController>(GetWorld()->GetFirstPlayerController());
+
+	//if (PC && PC->bPauseMenuDisplayed) return;
+
+	if (Controller && amount) {
+		AddMovementInput(SpringArmComp->GetForwardVector(), amount);
+	}
+}
+
+void ASwordFlyCharacter::MoveRight(float amount)
+{
+	APlayerController *PC = Cast<APlayerController>(GetWorld()->GetFirstPlayerController());
+
+	//if (PC && PC->bPauseMenuDisplayed) return;
+
+	//add input in the camera's right direction
+	if (Controller && amount) {
+		AddMovementInput(SpringArmComp->GetRightVector(), amount);
+	}
+}
+
+void ASwordFlyCharacter::RotateCamera(float amount)
+{
+	APlayerController *PC = Cast<APlayerController>(GetWorld()->GetFirstPlayerController());
+
+	//if (PC && PC->bPauseMenuDisplayed) return;
+
+	//add rotation on the spring arm's z axis
+	if (Controller && amount) {
+		FVector rot = SpringArmComp->GetComponentRotation().Euler();
+		rot += FVector(0, 0, amount);
+		SpringArmComp->SetWorldRotation(FQuat::MakeFromEuler(rot));
+	}
+}
+
+void ASwordFlyCharacter::ChangeCameraHeight(float amount)
+{
+	APlayerController *PC = Cast<APlayerController>(GetWorld()->GetFirstPlayerController());
+
+	//if (PC && PC->bPauseMenuDisplayed) return;
+
+	//add rotation on spring arm's y axis. Clamp between -45 and -5
+	if (Controller && amount) {
+		FVector rot = SpringArmComp->GetComponentRotation().Euler();
+
+		float originalHeight = rot.Y;
+		originalHeight += amount;
+		originalHeight = FMath::Clamp(originalHeight, -45.f, -5.f);
+
+		rot = FVector(0, originalHeight, rot.Z);
+		SpringArmComp->SetWorldRotation(FQuat::MakeFromEuler(rot));
+	}
 }
 

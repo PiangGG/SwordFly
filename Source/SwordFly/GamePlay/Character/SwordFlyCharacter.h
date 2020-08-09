@@ -33,4 +33,13 @@ public:
 	class USpringArmComponent* SpringArmComp;
 	//相机第三人称
 	class UCameraComponent* TiredCamera;
+
+	//设置角色基础移动
+	void MoveForward(float amount);
+
+	void MoveRight(float amount);
+
+	void RotateCamera(float amount);
+
+	void ChangeCameraHeight(float amount);
 };
