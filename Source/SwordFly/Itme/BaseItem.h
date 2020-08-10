@@ -10,7 +10,7 @@ UENUM(BlueprintType)
 enum class EItmeType:uint8
 {
 	EWeapon        UMETA(DisplayName="武器"),
-	EOther        UMETA(DisplayName="其他")
+	EOther         UMETA(DisplayName="其他")
 };
 UCLASS()
 class SWORDFLY_API ABaseItem : public AActor
@@ -38,10 +38,13 @@ public:
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly)
 	EItmeType thisItmeTtpe;
 
+	class ASwordFlyCharacter * Owner;
 	/*Component*/
 	class UStaticMeshComponent* Mesh;
 	
-	class USphereComponent* Colution;
+	class UShapeComponent* Collision_Pack;
+	
+	void Collision_Pack_BeginOverlap(class UPrimitiveComponent* Component,class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 private:
 	
 	
