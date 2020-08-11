@@ -162,6 +162,7 @@ void ASwordFlyCharacter::SetCurrentWeapon(ABaseItem* Weapon)
 
 void ASwordFlyCharacter::PackUp(ABaseItem* Itme)
 {
+	UE_LOG(LogTemp, Warning, TEXT("拾取inCharacter"));
 	ABaseItem* thisItem=Cast<ABaseItem>(Itme);
 	//EItmeType type= thisItem->GetItemType();
 	switch (thisItem->GetItemType()) {

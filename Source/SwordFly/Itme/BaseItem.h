@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Engine/Texture2D.h"
 #include "BaseItem.generated.h"
 
 UENUM(BlueprintType)
@@ -36,15 +37,26 @@ public:
 	virtual void SetItmeType(EItmeType Type);
 
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly)
-	EItmeType thisItmeTtpe;
+	EItmeType thisItmeType;
 
-	class ASwordFlyCharacter * Owner;
+	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly)
+	class ASwordFlyCharacter* thisOwner;
+	
 	/*Component*/
+	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly)
 	class UStaticMeshComponent* Mesh;
 	
-	class UShapeComponent* Collision_Pack;
+	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly)
+	UTexture2D* ItemIcon;
 	
-	void Collision_Pack_BeginOverlap(class UPrimitiveComponent* Component,class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly)
+	FString ItemName;
+	
+	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly)
+	class USphereComponent* Collision_Pack;
+	
+	UFUNCTION()
+	virtual void Collision_Pack_BeginOverlap(class UPrimitiveComponent* Component,class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 private:
 	
 	

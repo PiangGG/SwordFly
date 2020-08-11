@@ -69,4 +69,6 @@ public:
 	
 	//拾取物品
 	void PackUp(class ABaseItem* Itme);
+
+	//void Equipment();
 };
