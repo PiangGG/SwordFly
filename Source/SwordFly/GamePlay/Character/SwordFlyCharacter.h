@@ -80,4 +80,8 @@ public:
 	//装备武器
 	void Equipment(class ABaseItem* Itme);
 	void UnEquipment();
+
+	//角色加速
+	void RunStart();
+	void RunEnd();
 };

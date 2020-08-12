@@ -46,6 +46,7 @@ ASwordFlyCharacter::ASwordFlyCharacter()
 	GetCharacterMovement()->JumpZVelocity = 1000.f;
 	GetCharacterMovement()->GravityScale = 2.f;
 	GetCharacterMovement()->AirControl = 0.8f;
+	GetCharacterMovement()->MaxWalkSpeed= 300.f;
 
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_EngineTraceChannel1,ECR_Overlap);
 }
@@ -78,6 +79,9 @@ void ASwordFlyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 
 	PlayerInputComponent->BindAction("UnEquipment",EInputEvent::IE_Pressed,this,&ASwordFlyCharacter::UnEquipment);
 	PlayerInputComponent->BindAction("Jump",EInputEvent::IE_Pressed,this,&ACharacter::Jump);
+	
+	PlayerInputComponent->BindAction("Run",EInputEvent::IE_Pressed,this,&ASwordFlyCharacter::RunStart);
+	PlayerInputComponent->BindAction("Run",EInputEvent::IE_Released,this,&ASwordFlyCharacter::RunEnd);
 }
 
 void ASwordFlyCharacter::MoveForward(float amount)
@@ -211,7 +215,7 @@ void ASwordFlyCharacter::Equipment(ABaseItem* Itme)
 {
 	ASwordFlyBaseWeapon  *NewWeapon=Cast<ASwordFlyBaseWeapon>(Itme);
 	
-	if (GetCurrentWeapon()==nullptr)
+	if (CurrentWeapon==nullptr)
 	{
 		
 		NewWeapon->Collision_Pack->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -236,7 +240,18 @@ void ASwordFlyCharacter::UnEquipment()
 	CurrentWeapon->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 	CurrentWeapon->AfterThroud(this);
 	//
-	//SetCurrentWeapon(NULL);
+	//SetCurrentWeapon();
+	CurrentWeapon=nullptr;
+}
+
+void ASwordFlyCharacter::RunStart()
+{
+	GetCharacterMovement()->MaxWalkSpeed=600.f;
+}
+
+void ASwordFlyCharacter::RunEnd()
+{
+	GetCharacterMovement()->MaxWalkSpeed=300.f;
 }
 
 

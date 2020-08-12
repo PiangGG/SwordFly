@@ -71,6 +71,7 @@ void ABaseItem::Collision_Pack_BeginOverlap(UPrimitiveComponent* Component,AActo
 	
 	if (Player)
 	{
+		if (Player->CurrentWeapon!=nullptr)return;
 		
 		UE_LOG(LogTemp, Warning, TEXT("拾取initem"));
 		Collision_Pack->SetCollisionEnabled(ECollisionEnabled::NoCollision);
