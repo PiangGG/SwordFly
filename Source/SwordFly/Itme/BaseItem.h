@@ -57,7 +57,15 @@ public:
 	
 	UFUNCTION()
 	virtual void Collision_Pack_BeginOverlap(class UPrimitiveComponent* Component,class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-private:
+	
+	UFUNCTION()
+	virtual void AfterThroud(class ASwordFlyCharacter* theOwner);
+
+	//拾取定时器
+	FTimerHandle MemberTimerHandle;
+	//重置定时器
+	void RepeatingFunction();
+	private:
 	
 	
 };

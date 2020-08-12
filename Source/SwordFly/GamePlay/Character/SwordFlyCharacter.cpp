@@ -7,8 +7,12 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/Actor.h"
+#include "Components/SphereComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "SwordFly/GamePlay/PlayerController/SwordFlyPlayerController.h"
 #include "SwordFly/Itme/BaseItem.h"
+#include "SwordFly/Itme/Weapons/SwordFlyBaseWeapon.h"
+class ASwordFlyBaseWeapon;
 // Sets default values
 ASwordFlyCharacter::ASwordFlyCharacter()
 {
@@ -42,6 +46,8 @@ ASwordFlyCharacter::ASwordFlyCharacter()
 	GetCharacterMovement()->JumpZVelocity = 1000.f;
 	GetCharacterMovement()->GravityScale = 2.f;
 	GetCharacterMovement()->AirControl = 0.8f;
+
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_EngineTraceChannel1,ECR_Overlap);
 }
 
 // Called when the game starts or when spawned
@@ -68,6 +74,7 @@ void ASwordFlyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	PlayerInputComponent->BindAxis("RotateCamera",this,&ASwordFlyCharacter::RotateCamera);
 	PlayerInputComponent->BindAxis("ChangeCameraHeight",this,&ASwordFlyCharacter::ChangeCameraHeight);
 
+	PlayerInputComponent->BindAction("UnEquipment",EInputEvent::IE_Pressed,this,&ASwordFlyCharacter::UnEquipment);
 	PlayerInputComponent->BindAction("Jump",EInputEvent::IE_Pressed,this,&ACharacter::Jump);
 }
 
@@ -166,10 +173,45 @@ void ASwordFlyCharacter::PackUp(ABaseItem* Itme)
 	ABaseItem* thisItem=Cast<ABaseItem>(Itme);
 	//EItmeType type= thisItem->GetItemType();
 	switch (thisItem->GetItemType()) {
-		case EItmeType::EWeapon: break;
-		case EItmeType::EOther: break;
-		default: ;
+		case EItmeType::EWeapon: 
+			Equipment(thisItem);
+			break;
+		case EItmeType::EOther:
+			thisItem->Destroy();
+			break;
+		default:
+			thisItem->Destroy();
+			break;
 	}
+}
+
+void ASwordFlyCharacter::Equipment(ABaseItem* Itme)
+{
+	ASwordFlyBaseWeapon  *NewWeapon=Cast<ASwordFlyBaseWeapon>(Itme);
+	
+	if (GetCurrentWeapon()==nullptr)
+	{
+		
+		NewWeapon->Collision_Pack->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		NewWeapon->AttachToComponent(GetMesh(),FAttachmentTransformRules::SnapToTargetNotIncludingScale,Socket_Right);
+		SetCurrentWeapon(NewWeapon);
+	}else
+	{
+		/*ASwordFlyBaseWeapon  *CurrentWeapon=Cast<ASwordFlyBaseWeapon>(GetCurrentWeapon());
+		if (NewWeapon->GetWeaponType()!=CurrentWeapon->GetWeaponType())
+		{
+			
+		}*/
+	}
+}
+
+void ASwordFlyCharacter::UnEquipment()
+{
+	if (GetCurrentWeapon()==nullptr)return;
+	CurrentWeapon->Mesh->SetSimulatePhysics(true);
+	CurrentWeapon->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+	CurrentWeapon->AfterThroud(this);
+	SetCurrentWeapon(nullptr);
 }
 
 

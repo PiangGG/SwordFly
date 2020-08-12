@@ -1,22 +1,28 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Itme/BaseItem.h"
-#include "SwordFl_BaseSword.generated.h"
+#include "SwordFly/Itme/BaseItem.h"
+#include "SwordFlyBaseWeapon.generated.h"
 
 /**
  * 
  */
+
+UENUM(BlueprintType)
+enum class EWeaponType:uint8
+{
+	ESword        	UMETA(DisplayName="剑"),
+	EBow        	UMETA(DisplayName="弓"),
+    EOther         	UMETA(DisplayName="其他")
+};
 UCLASS()
-class SWORDFLY_API ASwordFl_BaseSword : public ABaseItem
+class SWORDFLY_API ASwordFlyBaseWeapon : public ABaseItem
 {
 	GENERATED_BODY()
 	
 public:
 	
-	ASwordFl_BaseSword();
+	ASwordFlyBaseWeapon();
 
 	//UFUNCTION(BlueprintCallable)
     virtual void SetItmeType(EItmeType Type) override;
@@ -29,5 +35,11 @@ public:
 
     //UFUNCTION()
 	virtual void Collision_Pack_BeginOverlap(class UPrimitiveComponent* Component,class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) override;
-	
+
+	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly)
+	EWeaponType thisWeaponType;
+	UFUNCTION(BlueprintCallable)
+	EWeaponType GetWeaponType();
+	UFUNCTION(BlueprintCallable)
+	virtual void SetWeaponType(EWeaponType newType);
 };

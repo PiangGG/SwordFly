@@ -34,6 +34,13 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	//Mesh 上面的接口
+	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly)
+	FName Socket_Right="Socket_Right_FString";
+	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly)
+	FName Socket_Left="Socket_Left_FString";
+	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly)
+	FName Socket_Back="Socket_Back_FString";
 	/*
 	 * Component
 	 */
@@ -70,5 +77,7 @@ public:
 	//拾取物品
 	void PackUp(class ABaseItem* Itme);
 
-	//void Equipment();
+	//装备武器
+	void Equipment(class ABaseItem* Itme);
+	void UnEquipment();
 };

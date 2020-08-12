@@ -19,20 +19,20 @@ protected:
 
 	ASwordFlyPlayerState();
 	
-	/*UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly, Category = "Player State")
+	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly, Category = "Player State")
 	class USwordFlyInformationrComponent* InformationCompoent;
 	
 	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly, Category = "Player State")
-	int CurrentHealth;
+	float CurrentHealth;
 	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly, Category = "Player State")
-	int MaxHealth;
+	float MaxHealth;
 
 	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly, Category = "Player State")
-	int CurrentVitality;
+	float CurrentVitality;
 	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly, Category = "Player State")
-	int MaxVitality;*/
+	float MaxVitality;
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "Player State")
-    void CollectHeart();
+    void CollectHeart(float var);
 };
