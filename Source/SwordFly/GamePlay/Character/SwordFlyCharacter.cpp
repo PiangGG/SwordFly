@@ -251,6 +251,7 @@ void ASwordFlyCharacter::RunStart()
 
 void ASwordFlyCharacter::RunEnd()
 {
+	UE_LOG(LogTemp, Warning, TEXT("测试"));
 	GetCharacterMovement()->MaxWalkSpeed=300.f;
 }
 
