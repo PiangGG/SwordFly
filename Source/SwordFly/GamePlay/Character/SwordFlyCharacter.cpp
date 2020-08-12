@@ -71,8 +71,10 @@ void ASwordFlyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 
 	PlayerInputComponent->BindAxis("MoveForward",this,&ASwordFlyCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight",this,&ASwordFlyCharacter::MoveRight);
-	PlayerInputComponent->BindAxis("RotateCamera",this,&ASwordFlyCharacter::RotateCamera);
+	//PlayerInputComponent->BindAxis("RotateCamera",this,&ASwordFlyCharacter::RotateCamera);
+	PlayerInputComponent->BindAxis("RotateCamera",this,&ASwordFlyCharacter::AddControllerYawInput);
 	PlayerInputComponent->BindAxis("ChangeCameraHeight",this,&ASwordFlyCharacter::ChangeCameraHeight);
+	PlayerInputComponent->BindAxis("ChangeCameraHeight",this,&ASwordFlyCharacter::AddControllerPitchInput);
 
 	PlayerInputComponent->BindAction("UnEquipment",EInputEvent::IE_Pressed,this,&ASwordFlyCharacter::UnEquipment);
 	PlayerInputComponent->BindAction("Jump",EInputEvent::IE_Pressed,this,&ACharacter::Jump);
@@ -165,6 +167,26 @@ ABaseItem* ASwordFlyCharacter::GetCurrentWeapon()
 void ASwordFlyCharacter::SetCurrentWeapon(ABaseItem* Weapon)
 {
 	CurrentWeapon = Weapon;
+	ASwordFlyBaseWeapon* thisWeapon=Cast<ASwordFlyBaseWeapon>(CurrentWeapon);
+	switch (thisWeapon->GetWeaponType())
+	{
+		case EWeaponType::EBow:
+			{
+				SetCharacterState(ECharacterState::EBow);
+				break;
+			}
+		case EWeaponType::ESword:
+			{
+				SetCharacterState(ECharacterState::ESword);
+				break;
+			}
+		case EWeaponType::EOther:
+			{
+				SetCharacterState(ECharacterState::ENone);
+				break;
+			}
+		default: break;;
+	}
 }
 
 void ASwordFlyCharacter::PackUp(ABaseItem* Itme)
@@ -195,6 +217,7 @@ void ASwordFlyCharacter::Equipment(ABaseItem* Itme)
 		NewWeapon->Collision_Pack->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		NewWeapon->AttachToComponent(GetMesh(),FAttachmentTransformRules::SnapToTargetNotIncludingScale,Socket_Right);
 		SetCurrentWeapon(NewWeapon);
+		//NewWeapon->GetWeaponType();
 	}else
 	{
 		/*ASwordFlyBaseWeapon  *CurrentWeapon=Cast<ASwordFlyBaseWeapon>(GetCurrentWeapon());
@@ -208,10 +231,12 @@ void ASwordFlyCharacter::Equipment(ABaseItem* Itme)
 void ASwordFlyCharacter::UnEquipment()
 {
 	if (GetCurrentWeapon()==nullptr)return;
+	SetCharacterState(ECharacterState::ENone);
 	CurrentWeapon->Mesh->SetSimulatePhysics(true);
 	CurrentWeapon->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 	CurrentWeapon->AfterThroud(this);
-	SetCurrentWeapon(nullptr);
+	//
+	//SetCurrentWeapon(NULL);
 }
 
 
