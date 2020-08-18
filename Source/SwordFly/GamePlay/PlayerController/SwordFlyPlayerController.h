@@ -57,4 +57,8 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Platformer Player Controller")
     void HideAllMenus();
+
+	//库存
+	void Inventory();
+	bool bisInventoryOpen;
 };

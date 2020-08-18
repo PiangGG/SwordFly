@@ -82,6 +82,10 @@ public:
 	void UnEquipment();
 
 	//角色加速
+	UFUNCTION(Server, Reliable, WithValidation)
 	void RunStart();
+	UFUNCTION(Server, Reliable, WithValidation)
 	void RunEnd();
+
+	
 };

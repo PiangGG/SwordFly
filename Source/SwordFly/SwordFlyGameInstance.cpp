@@ -47,6 +47,8 @@ void USwordFlyGameInstance::Init()
 
 void USwordFlyGameInstance::ChangeState(EGameState newState)
 {
+    //if (CurrentState==nullptr)return;
+    
     if (CurrentState != newState) {
         LeaveState();
         EnterState(newState);
@@ -132,7 +134,7 @@ bool USwordFlyGameInstance::HostSession(TSharedPtr<const FUniqueNetId> UserId, F
             SessionSettings->bAllowJoinViaPresence = true;
             SessionSettings->bAllowJoinViaPresenceFriendsOnly = false;
 
-            SessionSettings->Set(SETTING_MAPNAME, FString("Map_SandBox"), EOnlineDataAdvertisementType::ViaOnlineService);
+            SessionSettings->Set(SETTING_MAPNAME, FString("TextMap"), EOnlineDataAdvertisementType::ViaOnlineService);
 
             for (auto &setting : SettingsMap) {
                 SessionSettings->Settings.Add(FName(*setting.Key), setting.Value);
@@ -188,7 +190,7 @@ void USwordFlyGameInstance::OnStartOnlineGameComplete(FName SessionName, bool bW
 
     //if the start was successful, we open our map as a listen server
     if (bWasSuccessful) {
-        UGameplayStatics::OpenLevel(GetWorld(), "Map_SandBox", true, "listen");
+        UGameplayStatics::OpenLevel(GetWorld(), "TextMap", true, "listen");
         ChangeState(EGameState::ETravelling);
     }
 }
@@ -460,7 +462,7 @@ void USwordFlyGameInstance::OnDestroySessionComplete(FName SessionName, bool bWa
     }
 
     if (bWasSuccessful) {
-        UGameplayStatics::OpenLevel(GetWorld(), "Map_MainMenu", true);
+        UGameplayStatics::OpenLevel(GetWorld(), "Main", true);
         ChangeState(EGameState::ETravelling);
     }
 }
@@ -491,8 +493,7 @@ void USwordFlyGameInstance::EnterState(EGameState newState)
 		CurrentWidget = CreateWidget<UUserWidget>(GetWorld()->GetFirstPlayerController(), cMainMenu);
 		
 		CurrentWidget->AddToViewport();
-
-		
+	        
 		SetInputMode(EInputMode::EUIOnly, true);
 		break;
 	}

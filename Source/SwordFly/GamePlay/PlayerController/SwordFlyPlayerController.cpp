@@ -11,7 +11,10 @@ ASwordFlyPlayerController::ASwordFlyPlayerController()
     PrimaryActorTick.bCanEverTick = true;
 
     bPauseMenuDisplayed = false;
-    bPlayerListDisplayed = false;}
+    bPlayerListDisplayed = false;
+
+    bisInventoryOpen=false;
+}
 
 void ASwordFlyPlayerController::SetupInputComponent()
 {
@@ -20,6 +23,7 @@ void ASwordFlyPlayerController::SetupInputComponent()
     InputComponent->BindAction("PauseMenu", EInputEvent::IE_Pressed, this, &ASwordFlyPlayerController::TogglePauseMenu);
     InputComponent->BindAction("ShowPlayerScreen", EInputEvent::IE_Pressed, this, &ASwordFlyPlayerController::ShowPlayerList);
     InputComponent->BindAction("ShowPlayerScreen", EInputEvent::IE_Released, this, &ASwordFlyPlayerController::HidePlayerList);
+    InputComponent->BindAction("Inventory", EInputEvent::IE_Pressed, this, &ASwordFlyPlayerController::Inventory);
 }
 
 void ASwordFlyPlayerController::Tick(float DeltaTime)
@@ -119,5 +123,27 @@ void ASwordFlyPlayerController::HideAllMenus()
 
     if (bPauseMenuDisplayed) {
         TogglePauseMenu();
+    }
+}
+
+void ASwordFlyPlayerController::Inventory()
+{
+    if (!bisInventoryOpen)
+    {
+        bisInventoryOpen=true;
+        USwordFlyGameInstance *GameInstance = Cast<USwordFlyGameInstance>(GetWorld()->GetGameInstance());
+
+        if (GameInstance) {
+            GameInstance->SetInputMode(EInputMode::EUIAndGame, true);
+        }
+        
+    }else
+    {
+        bisInventoryOpen=false;
+        USwordFlyGameInstance *GameInstance = Cast<USwordFlyGameInstance>(GetWorld()->GetGameInstance());
+
+        if (GameInstance) {
+            GameInstance->SetInputMode(EInputMode::EGameOnly, false);
+        }
     }
 }

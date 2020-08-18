@@ -12,6 +12,7 @@
 #include "SwordFly/GamePlay/PlayerController/SwordFlyPlayerController.h"
 #include "SwordFly/Itme/BaseItem.h"
 #include "SwordFly/Itme/Weapons/SwordFlyBaseWeapon.h"
+#include "Net/UnrealNetwork.h"
 class ASwordFlyBaseWeapon;
 // Sets default values
 ASwordFlyCharacter::ASwordFlyCharacter()
@@ -34,7 +35,8 @@ ASwordFlyCharacter::ASwordFlyCharacter()
 	bReplicates = true;
 	bAlwaysRelevant = true;
 	bReplayRewindable=true;
-	
+	SetReplicatingMovement(true);
+	//GetMesh()->SetRelativeTransform();
 	//bReplicateMovement=true;
 	//this->SetReplicatedMovement();
 	
@@ -47,7 +49,8 @@ ASwordFlyCharacter::ASwordFlyCharacter()
 	GetCharacterMovement()->GravityScale = 2.f;
 	GetCharacterMovement()->AirControl = 0.8f;
 	GetCharacterMovement()->MaxWalkSpeed= 300.f;
-
+	GetCharacterMovement()->SetIsReplicated(true);
+	
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_EngineTraceChannel1,ECR_Overlap);
 }
 
@@ -82,6 +85,8 @@ void ASwordFlyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	
 	PlayerInputComponent->BindAction("Run",EInputEvent::IE_Pressed,this,&ASwordFlyCharacter::RunStart);
 	PlayerInputComponent->BindAction("Run",EInputEvent::IE_Released,this,&ASwordFlyCharacter::RunEnd);
+	
+	//PlayerInputComponent->BindAction("Inventory")
 }
 
 void ASwordFlyCharacter::MoveForward(float amount)
@@ -244,15 +249,37 @@ void ASwordFlyCharacter::UnEquipment()
 	CurrentWeapon=nullptr;
 }
 
-void ASwordFlyCharacter::RunStart()
+void ASwordFlyCharacter::RunEnd_Implementation()
 {
+	GetCharacterMovement()->MaxWalkSpeed=300.f;
+}
+
+bool ASwordFlyCharacter::RunEnd_Validate()
+{
+	return  true;
+}
+
+void ASwordFlyCharacter::RunStart_Implementation()
+{
+	if (Role != ROLE_Authority)return;
+	
 	GetCharacterMovement()->MaxWalkSpeed=600.f;
 }
 
-void ASwordFlyCharacter::RunEnd()
+bool ASwordFlyCharacter::RunStart_Validate()
 {
-	UE_LOG(LogTemp, Warning, TEXT("测试。"));
-	GetCharacterMovement()->MaxWalkSpeed=300.f;
+	return  true;
 }
+
+/*void ASwordFlyCharacter::RunStart()
+{
+	GetCharacterMovement()->MaxWalkSpeed=600.f;
+}*/
+
+/*void ASwordFlyCharacter::RunEnd()
+{
+	//UE_LOG(LogTemp, Warning, TEXT("测试。"));
+	GetCharacterMovement()->MaxWalkSpeed=300.f;
+}*/
 
 
