@@ -62,8 +62,10 @@ public:
 	//控制角色状态
 	UFUNCTION(BlueprintCallable)
 	ECharacterState GetCharacterState();
+	
 	UFUNCTION(BlueprintCallable)
 	void SetCharacterState(ECharacterState newState);
+	
 	UPROPERTY(BlueprintReadOnly,EditDefaultsOnly)
 	ECharacterState CurrentCharacterState;
 
@@ -75,10 +77,13 @@ public:
 	class BaseItem * LastWeapon;
 	
 	//拾取物品
+	UFUNCTION(BlueprintCallable, Server, WithValidation, Reliable)
 	void PackUp(class ABaseItem* Itme);
 
 	//装备武器
+	UFUNCTION(BlueprintCallable, Server, WithValidation, Reliable)
 	void Equipment(class ABaseItem* Itme);
+	UFUNCTION(BlueprintCallable, Server, WithValidation, Reliable)
 	void UnEquipment();
 
 	//角色加速

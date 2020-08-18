@@ -13,6 +13,7 @@
 #include "SwordFly/Itme/BaseItem.h"
 #include "SwordFly/Itme/Weapons/SwordFlyBaseWeapon.h"
 #include "Net/UnrealNetwork.h"
+#include "Serialization/JsonTypes.h"
 class ASwordFlyBaseWeapon;
 // Sets default values
 ASwordFlyCharacter::ASwordFlyCharacter()
@@ -35,11 +36,12 @@ ASwordFlyCharacter::ASwordFlyCharacter()
 	bReplicates = true;
 	bAlwaysRelevant = true;
 	bReplayRewindable=true;
+	//bReplicateMovement=true;
 	SetReplicatingMovement(true);
 	//GetMesh()->SetRelativeTransform();
 	//bReplicateMovement=true;
 	//this->SetReplicatedMovement();
-	
+	//OnRep_ReplicatedMovement();
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationRoll = false;
 	bUseControllerRotationYaw = false;
@@ -198,7 +200,29 @@ void ASwordFlyCharacter::SetCurrentWeapon(ABaseItem* Weapon)
 	}
 }
 
-void ASwordFlyCharacter::PackUp(ABaseItem* Itme)
+void ASwordFlyCharacter::PackUp_Implementation(ABaseItem* Itme)
+{
+	ABaseItem* thisItem=Cast<ABaseItem>(Itme);
+	//EItmeType type= thisItem->GetItemType();
+	switch (thisItem->GetItemType()) {
+	case EItmeType::EWeapon: 
+		Equipment(thisItem);
+		break;
+	case EItmeType::EOther:
+		thisItem->Destroy();
+		break;
+	default:
+		thisItem->Destroy();
+		break;
+	}
+}
+
+bool ASwordFlyCharacter::PackUp_Validate(ABaseItem* Itme)
+{
+	return true;
+}
+
+/*void ASwordFlyCharacter::PackUp(ABaseItem* Itme)
 {
 	UE_LOG(LogTemp, Warning, TEXT("拾取inCharacter"));
 	ABaseItem* thisItem=Cast<ABaseItem>(Itme);
@@ -214,9 +238,44 @@ void ASwordFlyCharacter::PackUp(ABaseItem* Itme)
 			thisItem->Destroy();
 			break;
 	}
+}*/
+
+void ASwordFlyCharacter::UnEquipment_Implementation()
+{
+	if (GetCurrentWeapon()==nullptr)return;
+	SetCharacterState(ECharacterState::ENone);
+	CurrentWeapon->Mesh->SetSimulatePhysics(true);
+	CurrentWeapon->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+	CurrentWeapon->AfterThroud(this);
+	//
+	//SetCurrentWeapon();
+	CurrentWeapon=nullptr;
 }
 
-void ASwordFlyCharacter::Equipment(ABaseItem* Itme)
+bool ASwordFlyCharacter::UnEquipment_Validate()
+{
+	return true;
+}
+
+void ASwordFlyCharacter::Equipment_Implementation(ABaseItem* Itme)
+{
+	ASwordFlyBaseWeapon  *NewWeapon=Cast<ASwordFlyBaseWeapon>(Itme);
+	
+	if (CurrentWeapon==nullptr)
+	{
+		
+		NewWeapon->Collision_Pack->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		NewWeapon->AttachToComponent(GetMesh(),FAttachmentTransformRules::SnapToTargetNotIncludingScale,Socket_Right);
+		SetCurrentWeapon(NewWeapon);
+	}
+}
+
+bool ASwordFlyCharacter::Equipment_Validate(ABaseItem* Itme)
+{
+	return true;
+}
+
+/*void ASwordFlyCharacter::Equipment(ABaseItem* Itme)
 {
 	ASwordFlyBaseWeapon  *NewWeapon=Cast<ASwordFlyBaseWeapon>(Itme);
 	
@@ -233,11 +292,11 @@ void ASwordFlyCharacter::Equipment(ABaseItem* Itme)
 		if (NewWeapon->GetWeaponType()!=CurrentWeapon->GetWeaponType())
 		{
 			
-		}*/
+		}
 	}
 }
-
-void ASwordFlyCharacter::UnEquipment()
+*/
+/*void ASwordFlyCharacter::UnEquipment()
 {
 	if (GetCurrentWeapon()==nullptr)return;
 	SetCharacterState(ECharacterState::ENone);
@@ -247,7 +306,7 @@ void ASwordFlyCharacter::UnEquipment()
 	//
 	//SetCurrentWeapon();
 	CurrentWeapon=nullptr;
-}
+}*/
 
 void ASwordFlyCharacter::RunEnd_Implementation()
 {
@@ -261,7 +320,7 @@ bool ASwordFlyCharacter::RunEnd_Validate()
 
 void ASwordFlyCharacter::RunStart_Implementation()
 {
-	if (Role != ROLE_Authority)return;
+	//if (Role >= ROLE_Authority)return;
 	
 	GetCharacterMovement()->MaxWalkSpeed=600.f;
 }
