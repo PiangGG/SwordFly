@@ -101,6 +101,7 @@ void ASwordFlyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	PlayerInputComponent->BindAction("Jump",EInputEvent::IE_Pressed,this,&ACharacter::Jump);
 
 	PlayerInputComponent->BindAction("Attack",EInputEvent::IE_Pressed,this,&ASwordFlyCharacter::Attack);
+	PlayerInputComponent->BindAction("Attack",EInputEvent::IE_Released,this,&ASwordFlyCharacter::Attack);
 	/*
 	PlayerInputComponent->BindAction("Run",EInputEvent::IE_Pressed,this,&ASwordFlyCharacter::RunStartClient);
 	PlayerInputComponent->BindAction("Run",EInputEvent::IE_Released,this,&ASwordFlyCharacter::RunEndClient);*/
@@ -219,7 +220,20 @@ void ASwordFlyCharacter::SetCurrentWeapon(ABaseItem* Weapon)
 
 void ASwordFlyCharacter::PackUp(ABaseItem* Itme)
 {
-	PackUpServer(Itme);
+	//PackUpServer(Itme);
+	ABaseItem* thisItem = Cast<ABaseItem>(Itme);
+	//EItmeType type= thisItem->GetItemType();
+	switch (thisItem->GetItemType()) {
+	case EItmeType::EWeapon:
+		Equipment(thisItem);
+		break;
+	case EItmeType::EOther:
+		thisItem->Destroy();
+		break;
+	default:
+		thisItem->Destroy();
+		break;
+	}
 }
 
 void ASwordFlyCharacter::Equipment(ABaseItem* Itme)
@@ -251,7 +265,8 @@ void ASwordFlyCharacter::AttackNetMulticast_Implementation()
 	if (CurrentWeapon == nullptr)return;
 	
 	ASwordFlyBaseWeapon* thisWeapon = Cast<ASwordFlyBaseWeapon>(CurrentWeapon);
-
+	
+	
 	thisWeapon->Attack();
 }
 
@@ -305,7 +320,7 @@ bool ASwordFlyCharacter::PackUpServer_Validate(ABaseItem* Itme)
 }
 void ASwordFlyCharacter::PackUpNetMulticast_Implementation(ABaseItem* Itme)
 {
-	ABaseItem* thisItem = Cast<ABaseItem>(Itme);
+	/*ABaseItem* thisItem = Cast<ABaseItem>(Itme);
 	//EItmeType type= thisItem->GetItemType();
 	switch (thisItem->GetItemType()) {
 	case EItmeType::EWeapon:
@@ -317,5 +332,5 @@ void ASwordFlyCharacter::PackUpNetMulticast_Implementation(ABaseItem* Itme)
 	default:
 		thisItem->Destroy();
 		break;
-	}
+	}*/
 }

@@ -108,6 +108,7 @@ public:
 		void AttackServer();
 	UFUNCTION(NetMulticast, Reliable)
 		void AttackNetMulticast();
+	
 	//角色加速
 	/*UFUNCTION(Client,WithValidation, Reliable)
 	void RunStartServer();

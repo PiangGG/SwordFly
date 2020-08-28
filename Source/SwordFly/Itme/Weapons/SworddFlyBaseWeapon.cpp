@@ -9,6 +9,14 @@
 #include "Animation/AnimMontage.h"
 #include "Components/SphereComponent.h"
 
+void ASwordFlyBaseWeapon::Tick(float DeltaSeconds)
+{
+    Super::Tick(DeltaSeconds);
+    
+    
+    
+}
+
 ASwordFlyBaseWeapon::ASwordFlyBaseWeapon()
 {
     PrimaryActorTick.bCanEverTick = true;
@@ -30,6 +38,8 @@ ASwordFlyBaseWeapon::ASwordFlyBaseWeapon()
     bReplayRewindable = true;
     bAlwaysRelevant = true;
     SetReplicateMovement(true);
+
+    isAttack=false;
 }
 
 void ASwordFlyBaseWeapon::SetItmeType(EItmeType Type)
@@ -61,8 +71,12 @@ void ASwordFlyBaseWeapon::AttackNetMulticast_Implementation()
     UAnimInstance* PlayerAnimation = thisOwner->GetMesh()->GetAnimInstance();
     if (PlayerAnimation)
     {
-        if (AttackAnimMontage) {
-           PlayerAnimation->Montage_Play(AttackAnimMontage);
+        if (AttackAnimMontage&&PlayerAnimation->IsAnyMontagePlaying()==false) {
+            //thisOwner->GetActorRotation();
+          
+            //thisOwner->SetActorRotation(SetOwerRotation());
+            PlayerAnimation->Montage_Play(AttackAnimMontage);
+         
         }
            
     }
@@ -82,4 +96,11 @@ EWeaponType ASwordFlyBaseWeapon::GetWeaponType()
 void ASwordFlyBaseWeapon::SetWeaponType(EWeaponType newType)
 {
     thisWeaponType=newType;
+}
+
+FRotator ASwordFlyBaseWeapon::SetOwerRotation()
+{
+    FRotator newRotator1=FRotator(thisOwner->GetActorRotation().Pitch,thisOwner->GetController()->GetControlRotation().Yaw,thisOwner->GetActorRotation().Roll);
+    FRotator newRotator=FMath::RInterpTo(thisOwner->GetActorRotation(),newRotator1,0.3f,0.3f);
+    return newRotator;
 }
