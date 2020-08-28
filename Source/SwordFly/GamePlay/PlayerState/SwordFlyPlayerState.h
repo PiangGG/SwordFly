@@ -35,4 +35,7 @@ protected:
 public:
 	UFUNCTION(BlueprintCallable, Category = "Player State")
     void CollectHeart(float var);
+
+	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly, Category = "Player State")
+	float PlayerSpeed;
 };

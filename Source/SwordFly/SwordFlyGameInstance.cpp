@@ -49,10 +49,12 @@ void USwordFlyGameInstance::ChangeState(EGameState newState)
 {
     //if (CurrentState==nullptr)return;
     
-    if (CurrentState != newState) {
+    /*if (CurrentState != newState) {
         LeaveState();
         EnterState(newState);
-    }
+    }*/
+    LeaveState();
+    EnterState(newState);
 }
 
 EGameState USwordFlyGameInstance::GetGameState()
@@ -78,8 +80,8 @@ void USwordFlyGameInstance::SetInputMode(EInputMode newInputMode, bool bShowMous
     }
 
     //show or hide mouse cursor
-    GetWorld()->GetFirstPlayerController()->bShowMouseCursor = bShowMouseCursor;
-
+    //GetWorld()->GetFirstPlayerController()->bShowMouseCursor = bShowMouseCursor;
+    GetFirstLocalPlayerController()->bShowMouseCursor=bShowMouseCursor;
     //retain the values for further use
     CurrentInputMode = newInputMode;
     bIsShowingMouseCursor = bShowMouseCursor;
@@ -542,6 +544,7 @@ void USwordFlyGameInstance::EnterState(EGameState newState)
 
 void USwordFlyGameInstance::LeaveState()
 {
+    //if(CurrentState==nullptr)return;
     switch (CurrentState) {
     case EGameState::ELoadingScreen: {
     }

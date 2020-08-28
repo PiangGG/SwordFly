@@ -243,5 +243,5 @@ private:
 	//function for entering a state
 	void EnterState(EGameState newState);
 	//function for leaving current state
-	void LeaveState();private:
+	void LeaveState();
 };

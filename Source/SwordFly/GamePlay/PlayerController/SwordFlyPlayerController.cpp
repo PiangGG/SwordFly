@@ -4,6 +4,7 @@
 #include "SwordFlyPlayerController.h"
 #include "Components/InputComponent.h"
 #include "SwordFly/SwordFlyGameInstance.h"
+#include "Net/UnrealNetwork.h"
 
 
 ASwordFlyPlayerController::ASwordFlyPlayerController()
@@ -12,8 +13,9 @@ ASwordFlyPlayerController::ASwordFlyPlayerController()
 
     bPauseMenuDisplayed = false;
     bPlayerListDisplayed = false;
-
     bisInventoryOpen=false;
+
+    isRuning = false;
 }
 
 void ASwordFlyPlayerController::SetupInputComponent()
@@ -24,6 +26,8 @@ void ASwordFlyPlayerController::SetupInputComponent()
     InputComponent->BindAction("ShowPlayerScreen", EInputEvent::IE_Pressed, this, &ASwordFlyPlayerController::ShowPlayerList);
     InputComponent->BindAction("ShowPlayerScreen", EInputEvent::IE_Released, this, &ASwordFlyPlayerController::HidePlayerList);
     InputComponent->BindAction("Inventory", EInputEvent::IE_Pressed, this, &ASwordFlyPlayerController::Inventory);
+    InputComponent->BindAction("Run", EInputEvent::IE_Pressed, this, &ASwordFlyPlayerController::Run);
+    InputComponent->BindAction("Run", EInputEvent::IE_Released, this, &ASwordFlyPlayerController::Run);
 }
 
 void ASwordFlyPlayerController::Tick(float DeltaTime)
@@ -146,4 +150,31 @@ void ASwordFlyPlayerController::Inventory()
             GameInstance->SetInputMode(EInputMode::EGameOnly, false);
         }
     }
+}
+
+void ASwordFlyPlayerController::Run()
+{
+        RunServer();
+}
+
+void ASwordFlyPlayerController::RunNetMulticast_Implementation()
+{
+    if (isRuning) {
+        isRuning = false;
+        GetCharacter()->GetCharacterMovement()->MaxWalkSpeed = 300.f;
+    }
+    else
+    {
+        isRuning = true;
+        GetCharacter()->GetCharacterMovement()->MaxWalkSpeed = 600.f;
+    }
+}
+
+void ASwordFlyPlayerController::RunServer_Implementation()
+{
+    RunNetMulticast();
+}
+bool ASwordFlyPlayerController::RunServer_Validate()
+{
+    return true;
 }

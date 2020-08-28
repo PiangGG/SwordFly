@@ -61,4 +61,14 @@ public:
 	//库存
 	void Inventory();
 	bool bisInventoryOpen;
+
+	bool isRuning;
+	UFUNCTION()
+	void Run();
+
+	UFUNCTION(Server, WithValidation, Reliable)
+	void RunServer();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void RunNetMulticast();
 };

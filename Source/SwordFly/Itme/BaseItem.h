@@ -55,12 +55,24 @@ public:
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly)
 	class USphereComponent* Collision_Pack;
 	
+	UFUNCTION(Server, WithValidation, Reliable)
+	virtual void Collision_Pack_BeginOverlapServer(class UPrimitiveComponent* Component, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	
+	UFUNCTION(NetMulticast, Reliable)
+	virtual void Collision_Pack_BeginOverlapNetMulticast(class UPrimitiveComponent* Component, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
 	UFUNCTION()
 	virtual void Collision_Pack_BeginOverlap(class UPrimitiveComponent* Component,class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 	
 	UFUNCTION()
 	virtual void AfterThroud(class ASwordFlyCharacter* theOwner);
 
+	UFUNCTION(Server, WithValidation, Reliable)
+	virtual void AfterThroudServer(class ASwordFlyCharacter* theOwner);
+
+
+	UFUNCTION(NetMulticast, Reliable)
+	virtual void AfterThroudNetMulticast(class ASwordFlyCharacter* theOwner);
 	//拾取定时器
 	FTimerHandle MemberTimerHandle;
 	//重置定时器

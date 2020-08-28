@@ -12,6 +12,7 @@ ASwordFlyPlayerState::ASwordFlyPlayerState()
     CurrentHealth=MaxHealth;
     MaxVitality=100.f;
     CurrentVitality=MaxVitality;
+    PlayerSpeed = 300.f;
 }
 
 void ASwordFlyPlayerState::CollectHeart(float var)
