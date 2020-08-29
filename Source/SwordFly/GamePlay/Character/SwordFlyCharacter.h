@@ -73,6 +73,7 @@ public:
 	float CharacterMaxSpeed;
 	//角色武器
 	class ABaseItem * CurrentWeapon;
+	UFUNCTION(BlueprintCallable)
 	ABaseItem * GetCurrentWeapon();
 	void SetCurrentWeapon(class ABaseItem* Weapon);
 	
