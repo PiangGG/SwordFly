@@ -85,7 +85,7 @@ void ABaseItem::Collision_Pack_BeginOverlapNetMulticast_Implementation(UPrimitiv
 	{
 		if (Player->CurrentWeapon != nullptr)return;
 
-		UE_LOG(LogTemp, Warning, TEXT("拾取initem"));
+		//UE_LOG(LogTemp, Warning, TEXT("拾取initem"));
 		Collision_Pack->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		Collision_Pack->SetCollisionResponseToChannels(ECR_Ignore);
 

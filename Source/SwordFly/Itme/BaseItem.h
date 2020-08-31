@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Components/Image.h"
 #include "GameFramework/Actor.h"
 #include "Engine/Texture2D.h"
 #include "BaseItem.generated.h"
@@ -47,7 +48,7 @@ public:
 	class UStaticMeshComponent* Mesh;
 	
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly)
-	UTexture2D* ItemIcon;
+	USlateBrushAsset* ItemIcon;
 	
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly)
 	FString ItemName;

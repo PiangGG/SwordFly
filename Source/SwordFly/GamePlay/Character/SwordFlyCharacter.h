@@ -124,4 +124,14 @@ public:
 	void RunStart();
 	UFUNCTION()
 	void RunEnd();*/
+	
+	//被伤害
+	UFUNCTION(BlueprintCallable)
+	void ReceiveDamage(float var);
+
+	UFUNCTION(Server, WithValidation, Reliable)
+	void ReceiveDamageServer(float var);
+	
+	UFUNCTION(NetMulticast, Reliable)
+	void ReceiveDamageNetMulticast(float var);
 };

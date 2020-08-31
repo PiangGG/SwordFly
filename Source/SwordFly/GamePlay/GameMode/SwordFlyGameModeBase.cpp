@@ -3,3 +3,9 @@
 
 #include "SwordFlyGameModeBase.h"
 
+#include "SwordFly/GamePlay/Character/SwordFlyCharacter.h"
+
+ASwordFlyGameModeBase::ASwordFlyGameModeBase()
+{
+   // DefaultPawnClass=ASwordFlyCharacter().GetClass();
+}

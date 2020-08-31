@@ -17,6 +17,8 @@ class SWORDFLY_API ASword : public ASwordFlyBaseWeapon
 	public:
 	ASword();
 
+	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly)
+	class UCapsuleComponent* Collision_Capsule;
 	
     virtual void Attack(/*class UPrimitiveComponent* Component,class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult*/) override;
 	

@@ -13,5 +13,6 @@ UCLASS()
 class SWORDFLY_API ASwordFlyGameModeBase : public AGameModeBase
 {
 	GENERATED_BODY()
-	
+	public:
+	ASwordFlyGameModeBase();
 };

@@ -15,7 +15,7 @@ class SWORDFLY_API ASwordFlyPlayerState : public APlayerState
 {
 	GENERATED_BODY()
 	
-protected:
+public:
 
 	ASwordFlyPlayerState();
 	
@@ -38,4 +38,7 @@ public:
 
 	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly, Category = "Player State")
 	float PlayerSpeed;
+
+	UFUNCTION(BlueprintCallable, Category = "Player State")
+	void ReceiveDamage(float var);
 };

@@ -3,9 +3,11 @@
 
 #include "SwordFlyPlayerController.h"
 #include "Components/InputComponent.h"
-#include "SwordFly/SwordFlyGameInstance.h"
 #include "Net/UnrealNetwork.h"
+#include "SwordFly/Core/SwordFlyGameInstance.h"
 
+
+class USwordFlyGameInstance;
 
 ASwordFlyPlayerController::ASwordFlyPlayerController()
 {

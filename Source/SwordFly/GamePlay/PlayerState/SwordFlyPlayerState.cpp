@@ -17,9 +17,17 @@ ASwordFlyPlayerState::ASwordFlyPlayerState()
 
 void ASwordFlyPlayerState::CollectHeart(float var)
 {
-    CurrentHealth += 1;
+    CurrentHealth += var;
     CurrentHealth = FMath::Clamp(CurrentHealth, 0.f, MaxHealth);
 }
+
+void ASwordFlyPlayerState::ReceiveDamage(float var)
+{
+    UE_LOG(LogTemp, Warning, TEXT("ReceiveDamagePlayerState"));
+    CurrentHealth -= var;
+    CurrentHealth = FMath::Clamp(CurrentHealth, 0.f, MaxHealth);
+}
+
 void ASwordFlyPlayerState::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const
 {
     Super::GetLifetimeReplicatedProps(OutLifetimeProps);

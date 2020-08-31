@@ -4,13 +4,17 @@
 #include "Sword.h"
 #include "Net/UnrealNetwork.h"
 #include "SwordFly/GamePlay/Character/SwordFlyCharacter.h"
-
+#include "Components/CapsuleComponent.h"
 ASword::ASword()
 {
     PrimaryActorTick.bCanEverTick = true;
     ASwordFlyBaseWeapon::SetItmeType(EItmeType::EWeapon);
     this->thisOwner=nullptr;
     SetWeaponType(EWeaponType::ESword);
+    AttachLocation="Socket_Right_FString";
+
+    Collision_Capsule=CreateDefaultSubobject<UCapsuleComponent>(FName("Collision_Capsule"));
+    Collision_Capsule->SetupAttachment(RootComponent);
 }
 
 void ASword::Attack()

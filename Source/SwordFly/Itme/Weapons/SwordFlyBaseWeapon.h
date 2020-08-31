@@ -13,6 +13,7 @@ enum class EWeaponType:uint8
 {
 	ESword        	UMETA(DisplayName="剑"),
 	EBow        	UMETA(DisplayName="弓"),
+	EArrow       	UMETA(DisplayName="箭"),
     EOther         	UMETA(DisplayName="其他")
 };
 UCLASS()
@@ -56,5 +57,6 @@ public:
 	virtual FRotator SetOwerRotation();
 
 	bool isAttack;
-	
+
+	FName AttachLocation;
 };

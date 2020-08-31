@@ -222,10 +222,13 @@ void ASwordFlyCharacter::PackUp(ABaseItem* Itme)
 {
 	//PackUpServer(Itme);
 	ABaseItem* thisItem = Cast<ABaseItem>(Itme);
+	ASwordFlyPlayerState *PS=Cast<ASwordFlyPlayerState>( GetPlayerState());
+	PS->InformationCompoent->ItmeArray.Add(thisItem);
+	
 	//EItmeType type= thisItem->GetItemType();
 	switch (thisItem->GetItemType()) {
 	case EItmeType::EWeapon:
-		Equipment(thisItem);
+		//Equipment(thisItem);
 		break;
 	case EItmeType::EOther:
 		thisItem->Destroy();
@@ -249,6 +252,37 @@ void ASwordFlyCharacter::UnEquipment()
 void ASwordFlyCharacter::Attack()
 {
 	AttackServer();
+}
+
+void ASwordFlyCharacter::ReceiveDamage(float var)
+{
+	ReceiveDamageServer(var);	
+}
+
+void ASwordFlyCharacter::ReceiveDamageNetMulticast_Implementation(float var)
+{
+	UE_LOG(LogTemp, Warning, TEXT("ReceiveDamageCharactor"));
+	ASwordFlyPlayerState *PS=Cast<ASwordFlyPlayerState>(GetPlayerState());
+	PS->ReceiveDamage(var);
+	if (PS->CurrentHealth<=0)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("ReceiveDamageCharactorDestroy"));
+		//this->Destroy();
+		this->GetMesh()->SetAllBodiesSimulatePhysics(true);
+		this->GetMesh()->SetAllBodiesPhysicsBlendWeight(true);
+		this->GetMesh()->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
+		//	this->GetController()->Destroyed();
+	}
+}
+
+void ASwordFlyCharacter::ReceiveDamageServer_Implementation(float var)
+{
+	ReceiveDamageNetMulticast(var);
+}
+
+bool ASwordFlyCharacter::ReceiveDamageServer_Validate(float var)
+{
+	return  true;
 }
 
 void ASwordFlyCharacter::AttackServer_Implementation()
@@ -296,7 +330,7 @@ void ASwordFlyCharacter::EquipmentNetMulticast_Implementation(ABaseItem* Itme)
 	{
 
 		NewWeapon->Collision_Pack->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		NewWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, Socket_Right);
+		NewWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, NewWeapon->AttachLocation);
 		SetCurrentWeapon(NewWeapon);
 	}
 }

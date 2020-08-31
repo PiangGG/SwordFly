@@ -25,6 +25,7 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	TArray<class ABaseItem>* ItmeArray;
+	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly)
+	TArray<class ABaseItem*> ItmeArray;
 		
 };
