@@ -25,7 +25,7 @@ class SWORDFLY_API ABow : public ASwordFlyBaseWeapon
 
 	virtual void BeginPlay() override;
 
-	UFUNCTION(/*BlueprintImplementableEvent*/)
+	UFUNCTION()
 	void Shoot();
 
 	

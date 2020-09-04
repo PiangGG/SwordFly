@@ -20,11 +20,11 @@ class SWORDFLY_API ASword : public ASwordFlyBaseWeapon
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly)
 	class UCapsuleComponent* Collision_Capsule;
 	
-    virtual void Attack(/*class UPrimitiveComponent* Component,class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult*/) override;
+    virtual void Attack() override;
 	
-    virtual void AttackServer(/*class UPrimitiveComponent* Component, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult*/)override;
+    virtual void AttackServer()override;
 	
-    virtual void AttackNetMulticast(/*class UPrimitiveComponent* Component, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult*/)override;
+    virtual void AttackNetMulticast()override;
 
 	virtual void BeginPlay() override;
 

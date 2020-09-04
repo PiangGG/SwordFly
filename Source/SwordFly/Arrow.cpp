@@ -13,16 +13,15 @@ AArrow::AArrow()
     PrimaryActorTick.bCanEverTick = true;
     ASwordFlyBaseWeapon::SetItmeType(EItmeType::EWeapon);
     this->thisOwner=nullptr;
-    SetWeaponType(EWeaponType::EArrow);
-    //AttachLocation="Socket_Left_FString";
+    ASwordFlyBaseWeapon::SetWeaponType(EWeaponType::EArrow);
+   
     Collision_Attack->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
     Collision_Attack->SetCollisionResponseToChannels(ECR_Block);
   
     static ConstructorHelpers::FObjectFinder<UStaticMesh> objFinder(TEXT("StaticMesh'/Game/Mesh/Arrow01SM.Arrow01SM'"));
     Mesh->SetStaticMesh(objFinder.Object);
     Mesh->SetRelativeRotation(FRotator(0,180,0));
-    //Mesh->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-    //Mesh->SetSimulatePhysics(false);
+    
     DamageVar=20.f;
 }
 
@@ -40,7 +39,6 @@ void AArrow::OnHitActor(UPrimitiveComponent* HitComponent, AActor* OtherActor, U
     ASwordFlyCharacter* Charactered=Cast<ASwordFlyCharacter>(OtherActor);
     if (Charactered&&GetWorld()->GetFirstPlayerController()->GetCharacter()!=Charactered)
     {
-        UE_LOG(LogTemp, Warning, TEXT("arrowOnHitActor"));
         Charactered->ReceiveDamage(DamageVar);
         this->Destroy();
     }
@@ -49,10 +47,6 @@ void AArrow::BeginPlay()
 {
     Super::BeginPlay();
     Collision_Attack->OnComponentHit.AddDynamic(this,&AArrow::OnHitActor);
-   /*ASwordFlyCharacter* thisCharacter=Cast<ASwordFlyCharacter>(GetWorld()->GetFirstPlayerController()->GetCharacter());
-    if (thisCharacter)
-    {
-       
-    }*/
+
 }
 

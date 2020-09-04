@@ -30,14 +30,14 @@ ABaseItem::ABaseItem()
 	Mesh->SetSimulatePhysics(true);
 	Mesh->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
 	Mesh->SetCollisionResponseToChannels(ECR_Block);
-	RootComponent = Mesh;
-	Collision_Pack->SetupAttachment(RootComponent);
+	RootComponent = Collision_Pack;
+	Mesh->SetupAttachment(RootComponent);
 	
 
 	bReplicates = true;
 	bReplayRewindable = true;
 	bAlwaysRelevant = true;
-	SetReplicateMovement(true);
+	AActor::SetReplicateMovement(true);
 }
 
 // Called when the game starts or when spawned
@@ -83,9 +83,6 @@ void ABaseItem::Collision_Pack_BeginOverlapNetMulticast_Implementation(UPrimitiv
 
 	if (Player)
 	{
-		if (Player->CurrentWeapon != nullptr)return;
-
-		//UE_LOG(LogTemp, Warning, TEXT("拾取initem"));
 		Collision_Pack->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		Collision_Pack->SetCollisionResponseToChannels(ECR_Ignore);
 
@@ -120,23 +117,18 @@ bool ABaseItem::AfterThroudServer_Validate(ASwordFlyCharacter* theOwner)
 
 void ABaseItem::AfterThroudNetMulticast_Implementation(ASwordFlyCharacter* theOwner)
 {
-	GetWorldTimerManager().SetTimer(MemberTimerHandle, this, &ABaseItem::RepeatingFunction, 1.0f, true, 5.0f);
+	GetWorldTimerManager().SetTimer(MemberTimerHandle, this, &ABaseItem::ReSetPackupFTimerHndle, 1.0f, true, 5.0f);
 	Mesh->SetSimulatePhysics(true);
 	this->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 	Mesh->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
 	Mesh->SetCollisionResponseToChannels(ECR_Block);
-	//Mesh->AddForceAtLocation(,theOwner->GetActorLocation()+theOwner->SpringArmComp->GetComponentRotation().Vector()*100);
-	//DrawDebugLine(GetWorld(),theOwner->GetActorLocation(),theOwner->GetActorLocation()+theOwner->SpringArmComp->GetComponentRotation().Vector()*100,FColor::Red,false,10.f,10.0f,10.f);
-	//Mesh->AddForce(theOwner->SpringArmComp->GetComponentRotation().Vector() * 1000);
-	//DrawDebugLine(GetWorld(),theOwner->GetActorForwardVector(),theOwner->GetActorForwardVector()*1000,FColor::Green,false,10.f,10.0f,10.f);
-
-	//Collision_Pack->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	
 	Collision_Pack->SetCollisionResponseToChannel(ECC_EngineTraceChannel1, ECR_Overlap);
 	Collision_Pack->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
 	thisOwner = nullptr;
 }
 
-void ABaseItem::RepeatingFunction()
+void ABaseItem::ReSetPackupFTimerHndle()
 {
 	Collision_Pack->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 }

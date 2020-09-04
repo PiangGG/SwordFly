@@ -77,7 +77,7 @@ public:
 	//拾取定时器
 	FTimerHandle MemberTimerHandle;
 	//重置定时器
-	void RepeatingFunction();
+	void ReSetPackupFTimerHndle();
 	private:
 	
 	

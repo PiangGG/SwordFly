@@ -30,14 +30,10 @@ ASwordFlyBaseWeapon::ASwordFlyBaseWeapon()
     Collision_Attack->SetCollisionResponseToAllChannels(ECR_Ignore);
     Collision_Attack->SetCollisionResponseToChannel(ECC_EngineTraceChannel1,ECR_Overlap);
     
-    //Collision_Attack->OnComponentBeginOverlap.AddDynamic(this,&ASwordFlyBaseWeapon::Attack);
-
-    //Collision_Pack
-
     bReplicates = true;
     bReplayRewindable = true;
     bAlwaysRelevant = true;
-    SetReplicateMovement(true);
+    AActor::SetReplicateMovement(true);
 
     isAttack=false;
 }
@@ -50,7 +46,6 @@ void ASwordFlyBaseWeapon::SetItmeType(EItmeType Type)
 
 void ASwordFlyBaseWeapon::Attack()
 {
-    UE_LOG(LogTemp, Warning, TEXT("Attack"));
     AttackServer();
 }
 
@@ -71,13 +66,11 @@ void ASwordFlyBaseWeapon::AttackNetMulticast_Implementation()
     UAnimInstance* PlayerAnimation = thisOwner->GetMesh()->GetAnimInstance();
     if (PlayerAnimation)
     {
-        if (AttackAnimMontage&&PlayerAnimation->IsAnyMontagePlaying()==false) {
-            //thisOwner->GetActorRotation();
-          
-            //thisOwner->SetActorRotation(SetOwerRotation());
-            PlayerAnimation->Montage_Play(AttackAnimMontage);
+        if (AttackAnimMontage&&PlayerAnimation->IsAnyMontagePlaying()==false)
+            {
+                PlayerAnimation->Montage_Play(AttackAnimMontage);
          
-        }
+            }
            
     }
    

@@ -8,9 +8,9 @@
 ASword::ASword()
 {
     PrimaryActorTick.bCanEverTick = true;
-    ASwordFlyBaseWeapon::SetItmeType(EItmeType::EWeapon);
+   
     this->thisOwner=nullptr;
-    SetWeaponType(EWeaponType::ESword);
+    ASwordFlyBaseWeapon::SetWeaponType(EWeaponType::ESword);
     AttachLocation="Socket_Right_FString";
 
     Collision_Capsule=CreateDefaultSubobject<UCapsuleComponent>(FName("Collision_Capsule"));
@@ -35,11 +35,10 @@ void ASword::AttackNetMulticast()
     if (PlayerAnimation)
     {
         if (AttackAnimMontage&&PlayerAnimation->IsAnyMontagePlaying()==false) {
-            //thisOwner->GetActorRotation();
+          
             PlayerAnimation->Montage_Play(AttackAnimMontage);
             PlayerAnimation->Montage_JumpToSection("SwordAttack",AttackAnimMontage);
             
-           
         }
            
     }

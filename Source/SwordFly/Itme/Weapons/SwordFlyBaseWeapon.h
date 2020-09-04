@@ -51,9 +51,8 @@ public:
 	virtual void SetWeaponType(EWeaponType newType);
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "AnimationMontage")
-		class UAnimMontage* AttackAnimMontage;
-		//TSubclassOf<class UAnimMontage*> AttackAnimMontage;
-
+	class UAnimMontage* AttackAnimMontage;
+		
 	virtual FRotator SetOwerRotation();
 
 	bool isAttack;

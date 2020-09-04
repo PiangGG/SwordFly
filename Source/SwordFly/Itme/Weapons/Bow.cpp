@@ -15,10 +15,8 @@
 ABow::ABow()
 {
     PrimaryActorTick.bCanEverTick = true;
-    
-    ASwordFlyBaseWeapon::SetItmeType(EItmeType::EWeapon);
     this->thisOwner=nullptr;
-    SetWeaponType(EWeaponType::EBow);
+    ASwordFlyBaseWeapon::SetWeaponType(EWeaponType::EBow);
     AttachLocation="Socket_Left_FString";
 }
 
@@ -62,7 +60,6 @@ void ABow::Shoot()
     if (World)
     {
         AArrow* thisAArrow=GetWorld()->SpawnActor<AArrow>(ArrowClass,Mesh->GetSocketLocation("ShootSocket"),thisOwner->TiredCamera->GetComponentRotation());
-        //DrawDebugLine(GetWorld(),Mesh->GetSocketLocation("ShootSocket"),thisOwner->GetActorLocation()+thisOwner->TiredCamera->GetComponentRotation().Vector()*100,FColor::Red,false,10.f,10.0f,10.f);
         thisAArrow->Collision_Attack->AddImpulse(thisOwner->GetActorLocation()+thisOwner->TiredCamera->GetComponentRotation().Vector()*200000);
        
     }

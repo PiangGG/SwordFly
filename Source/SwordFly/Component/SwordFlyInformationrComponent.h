@@ -5,8 +5,6 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "SwordFlyInformationrComponent.generated.h"
-
-
 class ABaseItem;
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class SWORDFLY_API USwordFlyInformationrComponent : public UActorComponent
