@@ -58,4 +58,9 @@ public:
 	bool isAttack;
 
 	FName AttachLocation;
+
+	virtual void Equipment(ASwordFlyCharacter* Character);
+	
+	virtual void UnEquipment(ASwordFlyCharacter* Character);
+	
 };

@@ -21,8 +21,6 @@ ABaseItem::ABaseItem()
 	Collision_Pack = CreateDefaultSubobject<USphereComponent>(FName("Collision_Pack"));
 	Collision_Pack->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	Collision_Pack->SetCollisionResponseToChannels(ECR_Ignore);
-
-	//Collision_Pack->SetCollisionResponseToChannel(ECC_Pawn,ECR_Overlap);
 	Collision_Pack->SetCollisionResponseToChannel(ECC_EngineTraceChannel1, ECR_Overlap);
 	Collision_Pack->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
 
@@ -30,8 +28,8 @@ ABaseItem::ABaseItem()
 	Mesh->SetSimulatePhysics(true);
 	Mesh->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
 	Mesh->SetCollisionResponseToChannels(ECR_Block);
-	RootComponent = Collision_Pack;
-	Mesh->SetupAttachment(RootComponent);
+	RootComponent = Mesh;
+	Collision_Pack->SetupAttachment(RootComponent);
 	
 
 	bReplicates = true;
@@ -123,8 +121,10 @@ void ABaseItem::AfterThroudNetMulticast_Implementation(ASwordFlyCharacter* theOw
 	Mesh->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
 	Mesh->SetCollisionResponseToChannels(ECR_Block);
 	
+	Collision_Pack->SetCollisionResponseToChannels(ECR_Ignore);
 	Collision_Pack->SetCollisionResponseToChannel(ECC_EngineTraceChannel1, ECR_Overlap);
 	Collision_Pack->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
+	
 	thisOwner = nullptr;
 }
 

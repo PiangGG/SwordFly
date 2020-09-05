@@ -222,13 +222,36 @@ void ASwordFlyCharacter::PackUp(ABaseItem* Itme)
 {
 	//PackUpServer(Itme);
 	ABaseItem* thisItem = Cast<ABaseItem>(Itme);
-	ASwordFlyPlayerState *PS=Cast<ASwordFlyPlayerState>( GetPlayerState());
-	PS->InformationCompoent->ItmeArray.Add(thisItem);
 	
-	//EItmeType type= thisItem->GetItemType();
 	switch (thisItem->GetItemType()) {
 	case EItmeType::EWeapon:
-		//Equipment(thisItem);
+		if (GetCurrentWeapon()==nullptr)
+		{
+			Equipment(thisItem);
+			//return;
+		}else
+		{
+			ASwordFlyPlayerState *PS=Cast<ASwordFlyPlayerState>( GetPlayerState());
+	
+			//PS->InformationCompoent->ItmeArray.Add(thisItem);
+			//TArray<FPackItme> ItmeArray =;
+			thisItem->SetActorHiddenInGame(true);
+			for (auto& thisItmeArray:PS->InformationCompoent->ItmeArray)
+			{
+				if (thisItmeArray.thisItem->ItemName==Itme->ItemName)
+				{
+					thisItmeArray.thisItemnumber=thisItmeArray.thisItemnumber+1;
+					return;
+				}
+		
+			}
+			FPackItme newItme;
+			newItme.thisItem=Itme;
+			newItme.thisItemnumber=1;
+			PS->InformationCompoent->ItmeArray.Add(newItme);
+		}
+			
+		
 		break;
 	case EItmeType::EOther:
 		thisItem->Destroy();
@@ -237,6 +260,8 @@ void ASwordFlyCharacter::PackUp(ABaseItem* Itme)
 		thisItem->Destroy();
 		break;
 	}
+	
+	return;
 }
 
 void ASwordFlyCharacter::Equipment(ABaseItem* Itme)
@@ -317,22 +342,18 @@ bool ASwordFlyCharacter::UnEquipmentServer_Validate()
 void ASwordFlyCharacter::UnEquipmentNetMulticast_Implementation()
 {
 	if (CurrentCharacterState==ECharacterState::ENone)return;
-	SetCharacterState(ECharacterState::ENone);
-	CurrentWeapon->AfterThroud(this);
-	CurrentWeapon = nullptr;
+	
+	ASwordFlyBaseWeapon* ThisWeapon =Cast<ASwordFlyBaseWeapon>(CurrentWeapon);
+	ThisWeapon->UnEquipment(this);
 }
 
 void ASwordFlyCharacter::EquipmentNetMulticast_Implementation(ABaseItem* Itme)
 {
 	ASwordFlyBaseWeapon* NewWeapon = Cast<ASwordFlyBaseWeapon>(Itme);
 
-	if (CurrentWeapon == nullptr)
-	{
-
-		NewWeapon->Collision_Pack->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		NewWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, NewWeapon->AttachLocation);
-		SetCurrentWeapon(NewWeapon);
-	}
+		NewWeapon->Equipment(this);
+		
+	
 }
 
 void ASwordFlyCharacter::EquipmentServer_Implementation(ABaseItem* Itme)

@@ -6,6 +6,18 @@
 #include "Components/ActorComponent.h"
 #include "SwordFlyInformationrComponent.generated.h"
 class ABaseItem;
+
+USTRUCT(BlueprintType)
+struct FPackItme {
+	GENERATED_BODY()
+
+	UPROPERTY(EditDefaultsOnly,BlueprintReadWrite)
+	ABaseItem* thisItem;
+
+	UPROPERTY(BlueprintReadWrite,EditDefaultsOnly)
+	int32 thisItemnumber;
+};
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class SWORDFLY_API USwordFlyInformationrComponent : public UActorComponent
 {
@@ -24,6 +36,6 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly)
-	TArray<class ABaseItem*> ItmeArray;
+	TArray<FPackItme> ItmeArray;
 		
 };

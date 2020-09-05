@@ -26,7 +26,6 @@ ASwordFlyBaseWeapon::ASwordFlyBaseWeapon()
     Collision_Attack=CreateDefaultSubobject<USphereComponent>(FName("Collision_Attack"));
     Collision_Attack->SetupAttachment(RootComponent);
     Collision_Attack->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
     Collision_Attack->SetCollisionResponseToAllChannels(ECR_Ignore);
     Collision_Attack->SetCollisionResponseToChannel(ECC_EngineTraceChannel1,ECR_Overlap);
     
@@ -96,4 +95,27 @@ FRotator ASwordFlyBaseWeapon::SetOwerRotation()
     FRotator newRotator1=FRotator(thisOwner->GetActorRotation().Pitch,thisOwner->GetController()->GetControlRotation().Yaw,thisOwner->GetActorRotation().Roll);
     FRotator newRotator=FMath::RInterpTo(thisOwner->GetActorRotation(),newRotator1,0.3f,0.3f);
     return newRotator;
+}
+
+void ASwordFlyBaseWeapon::Equipment(ASwordFlyCharacter* Character)
+{
+    thisOwner=Character;
+    Collision_Attack->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+    Collision_Attack->SetCollisionResponseToAllChannels(ECR_Ignore);
+    Collision_Attack->SetSimulatePhysics(false);
+    
+    Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+    Mesh->SetSimulatePhysics(false);
+    this->AttachToComponent(thisOwner->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, this->AttachLocation);
+    thisOwner->SetCurrentWeapon(this);
+}
+
+void ASwordFlyBaseWeapon::UnEquipment(ASwordFlyCharacter* Character)
+{
+    if (thisOwner)
+    {
+        thisOwner->SetCharacterState(ECharacterState::ENone);
+        thisOwner->CurrentWeapon=nullptr;
+        this->AfterThroud(thisOwner);
+    }
 }
