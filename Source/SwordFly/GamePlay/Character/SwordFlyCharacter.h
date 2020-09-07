@@ -72,9 +72,8 @@ public:
 	UPROPERTY(Replicated, BlueprintReadOnly, EditDefaultsOnly)
 	float CharacterMaxSpeed;
 	//角色武器
-	class ABaseItem * CurrentWeapon;
 	UFUNCTION(BlueprintCallable)
-	ABaseItem * GetCurrentWeapon();
+	class ABaseItem * GetCurrentWeapon();
 	void SetCurrentWeapon(class ABaseItem* Weapon);
 	
 	class BaseItem * LastWeapon;
@@ -82,56 +81,24 @@ public:
 	//拾取物品
 	UFUNCTION(BlueprintCallable)
 	void PackUp(class ABaseItem* Itme);
-	UFUNCTION(Server, WithValidation, Reliable)
-	void PackUpServer(class ABaseItem* Itme);
-	UFUNCTION(NetMulticast, Reliable)
-	void PackUpNetMulticast(class ABaseItem* Itme);
+	
 
 	//装备武器
 	UFUNCTION(BlueprintCallable)
 	void Equipment(class ABaseItem* Itme);
-	UFUNCTION(Server, WithValidation, Reliable)
-	void EquipmentServer(class ABaseItem* Itme);
-	UFUNCTION(NetMulticast, Reliable)
-	void EquipmentNetMulticast(class ABaseItem* Itme);
+	
 
 	UFUNCTION(BlueprintCallable)
 	void UnEquipment();
-	UFUNCTION(Server, WithValidation, Reliable)
-	void UnEquipmentServer();
-	UFUNCTION(NetMulticast, Reliable)
-	void UnEquipmentNetMulticast();
+	
 
-	//
+	UFUNCTION(BlueprintCallable)
+    void SweapWeapon(class ABaseItem* newWeapon);
+	
 	UFUNCTION(BlueprintCallable)
 		void Attack();
-	UFUNCTION(Server, WithValidation, Reliable)
-		void AttackServer();
-	UFUNCTION(NetMulticast, Reliable)
-		void AttackNetMulticast();
-	
-	//角色加速
-	/*UFUNCTION(Client,WithValidation, Reliable)
-	void RunStartServer();
-	UFUNCTION()
-	void RunStartClient();
 
-	UFUNCTION(Client,WithValidation, Reliable)
-	void RunEndServer();
-	UFUNCTION()
-	void RunEndClient();*/
-	/*UFUNCTION()
-	void RunStart();
-	UFUNCTION()
-	void RunEnd();*/
-	
 	//被伤害
 	UFUNCTION(BlueprintCallable)
 	void ReceiveDamage(float var);
-
-	UFUNCTION(Server, WithValidation, Reliable)
-	void ReceiveDamageServer(float var);
-	
-	UFUNCTION(NetMulticast, Reliable)
-	void ReceiveDamageNetMulticast(float var);
 };

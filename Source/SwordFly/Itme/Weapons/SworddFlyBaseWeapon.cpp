@@ -1,12 +1,15 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include <basetyps.h>
+#include <ThirdParty/CryptoPP/5.6.5/include/misc.h>
+
 #include "Net/UnrealNetwork.h"
 #include "SwordFlyBaseWeapon.h"
 #include "SwordFly/GamePlay/Character/SwordFlyCharacter.h"
 #include "Animation/AnimInstance.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Animation/AnimMontage.h"
+#include "SwordFly/GamePlay/PlayerState/SwordFlyPlayerState.h"
 #include "Components/SphereComponent.h"
 
 void ASwordFlyBaseWeapon::Tick(float DeltaSeconds)
@@ -97,25 +100,53 @@ FRotator ASwordFlyBaseWeapon::SetOwerRotation()
     return newRotator;
 }
 
-void ASwordFlyBaseWeapon::Equipment(ASwordFlyCharacter* Character)
+void ASwordFlyBaseWeapon::Equipment(ASwordFlyPlayerState* PS)
 {
-    thisOwner=Character;
-    Collision_Attack->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-    Collision_Attack->SetCollisionResponseToAllChannels(ECR_Ignore);
-    Collision_Attack->SetSimulatePhysics(false);
-    
-    Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-    Mesh->SetSimulatePhysics(false);
-    this->AttachToComponent(thisOwner->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, this->AttachLocation);
-    thisOwner->SetCurrentWeapon(this);
+    EquipmentServer(PS);
 }
 
-void ASwordFlyBaseWeapon::UnEquipment(ASwordFlyCharacter* Character)
+void ASwordFlyBaseWeapon::EquipmentServer_Implementation(ASwordFlyPlayerState* PS)
 {
-    if (thisOwner)
+    EquipmentNetMulticast(PS);
+}
+
+bool ASwordFlyBaseWeapon::EquipmentServer_Validate(ASwordFlyPlayerState* PS)
+{
+    return true;
+}
+
+void ASwordFlyBaseWeapon::EquipmentNetMulticast_Implementation(ASwordFlyPlayerState* PS)
+{
+    if (GetLocalRole()==ROLE_Authority)
     {
+        ASwordFlyCharacter *Character1=Cast<ASwordFlyCharacter>(GetWorld()->GetFirstPlayerController()->GetCharacter());
+        if (!Character1)return;
+        
+        thisOwner=Character1;
+    
+        Collision_Attack->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+        Collision_Attack->SetCollisionResponseToAllChannels(ECR_Ignore);
+        Collision_Attack->SetSimulatePhysics(false);
+    
+        Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+        Mesh->SetSimulatePhysics(false);
+    
+        this->AttachToComponent(thisOwner->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, this->AttachLocation);
+
+        this->SetActorHiddenInGame(false);
+        PS->SetCurrentWeapon(this);
+        thisOwner->SetCurrentWeapon(this);
+    }
+    
+}
+
+void ASwordFlyBaseWeapon::UnEquipment(ASwordFlyPlayerState* PS)
+{
+    if (thisOwner&&PS)
+    {
+        //ASwordFlyPlayerState thisPS=Cast<ASwordFlyPlayerState>(thisOwner->GetPlayerState());
         thisOwner->SetCharacterState(ECharacterState::ENone);
-        thisOwner->CurrentWeapon=nullptr;
+        PS->CurrentWeapon=nullptr;
         this->AfterThroud(thisOwner);
     }
 }

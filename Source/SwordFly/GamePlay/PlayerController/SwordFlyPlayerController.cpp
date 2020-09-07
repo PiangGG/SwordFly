@@ -4,6 +4,7 @@
 #include "SwordFlyPlayerController.h"
 #include "Components/InputComponent.h"
 #include "Net/UnrealNetwork.h"
+#include "Blueprint/UserWidget.h"
 #include "SwordFly/Core/SwordFlyGameInstance.h"
 
 
@@ -18,6 +19,7 @@ ASwordFlyPlayerController::ASwordFlyPlayerController()
     bisInventoryOpen=false;
 
     isRuning = false;
+
 }
 
 void ASwordFlyPlayerController::SetupInputComponent()
@@ -123,6 +125,12 @@ void ASwordFlyPlayerController::HidePlayerList()
     }
 }
 
+void ASwordFlyPlayerController::UpDateInfoWBPList_Implementation()
+{
+    if (!InfoWBPList)return;
+    
+}
+
 void ASwordFlyPlayerController::HideAllMenus()
 {
     HidePlayerList();
@@ -142,7 +150,13 @@ void ASwordFlyPlayerController::Inventory()
         if (GameInstance) {
             GameInstance->SetInputMode(EInputMode::EUIAndGame, true);
         }
-        
+
+        if (InfoWBP)
+        {
+            InfoWBPList=CreateWidget<UUserWidget>(this,InfoWBP);//CreateWidget<UUserWidget>(GetWorld()->GetFirstPlayerController(),InfoWBP);
+            InfoWBPList->AddToViewport();
+        }
+   
     }else
     {
         bisInventoryOpen=false;
@@ -150,6 +164,10 @@ void ASwordFlyPlayerController::Inventory()
 
         if (GameInstance) {
             GameInstance->SetInputMode(EInputMode::EGameOnly, false);
+        }
+        if(InfoWBPList)
+        {
+            InfoWBPList->RemoveFromViewport();
         }
     }
 }

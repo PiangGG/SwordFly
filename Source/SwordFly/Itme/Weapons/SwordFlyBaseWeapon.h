@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+
 #include "SwordFly/Itme/BaseItem.h"
 #include "SwordFlyBaseWeapon.generated.h"
 
@@ -58,9 +59,16 @@ public:
 	bool isAttack;
 
 	FName AttachLocation;
-
-	virtual void Equipment(ASwordFlyCharacter* Character);
 	
-	virtual void UnEquipment(ASwordFlyCharacter* Character);
+	UFUNCTION(BlueprintCallable)
+	virtual void Equipment(class ASwordFlyPlayerState* PS);
+
+	UFUNCTION(Server,BlueprintCallable,WithValidation,Reliable)
+	virtual void EquipmentServer(class ASwordFlyPlayerState* PS);
+	
+	UFUNCTION(NetMulticast, Reliable)
+	virtual void EquipmentNetMulticast(class ASwordFlyPlayerState* PS);
+	
+	virtual void UnEquipment(class ASwordFlyPlayerState* PS);
 	
 };

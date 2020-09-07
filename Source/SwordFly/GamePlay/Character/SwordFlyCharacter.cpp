@@ -24,24 +24,18 @@ ASwordFlyCharacter::ASwordFlyCharacter()
 	PrimaryActorTick.bCanEverTick = true;
 
 	SpringArmComp=CreateDefaultSubobject<USpringArmComponent>(FName("springcomp"));
-	
 	SpringArmComp->bUsePawnControlRotation = false;
-	//SpringArmComp->SetAbsolute(true);
-	//SpringArmComp->SetUsingAbsoluteScale(true);
 	SpringArmComp->TargetArmLength = 700.f;
 	SpringArmComp->SetupAttachment(RootComponent);
-	//RootComponent=SpringArmComp;
+	
 	TiredCamera=CreateDefaultSubobject<UCameraComponent>(FName("Camera"));
 	TiredCamera->FieldOfView = 110.f;
 	TiredCamera->SetupAttachment(SpringArmComp);
 
-	/*bReplicates = true;
-	bReplicateMovement=true;*/
 	bAlwaysRelevant = true;
 	bReplayRewindable=true;
-	//bReplicateMovement=true;
 	SetReplicates(true);
-    SetReplicateMovement(true);
+    ACharacter::SetReplicateMovement(true);
 	
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationRoll = false;
@@ -55,12 +49,9 @@ ASwordFlyCharacter::ASwordFlyCharacter()
 	GetCharacterMovement()->MaxWalkSpeed= 300.f;
 	GetCharacterMovement()->SetIsReplicated(true);
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_EngineTraceChannel1,ECR_Overlap);
-    // ReSharper disable once CppDeprecatedEntity
-   // GetMesh()->MeshComponentUpdateFlag= EMeshComponentUpdateFlag::AlwaysTickPoseAndRefreshBones;
-	//GetMesh()->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::AlwaysTickPoseAndRefreshBones;
+   
 }
 
-// Called when the game starts or when spawned
 void ASwordFlyCharacter::BeginPlay()
 {
 	Super::BeginPlay();
@@ -71,7 +62,7 @@ void ASwordFlyCharacter::BeginPlay()
 	}
 }
 
-// Called every frame
+
 void ASwordFlyCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -85,14 +76,14 @@ void ASwordFlyCharacter::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > 
 	DOREPLIFETIME(ASwordFlyCharacter, CurrentCharacterState);
 }
 
-// Called to bind functionality to input
+
 void ASwordFlyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 	PlayerInputComponent->BindAxis("MoveForward",this,&ASwordFlyCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight",this,&ASwordFlyCharacter::MoveRight);
-	//PlayerInputComponent->BindAxis("RotateCamera",this,&ASwordFlyCharacter::RotateCamera);
+	
 	PlayerInputComponent->BindAxis("RotateCamera",this,&ASwordFlyCharacter::AddControllerYawInput);
 	PlayerInputComponent->BindAxis("ChangeCameraHeight",this,&ASwordFlyCharacter::ChangeCameraHeight);
 	PlayerInputComponent->BindAxis("ChangeCameraHeight",this,&ASwordFlyCharacter::AddControllerPitchInput);
@@ -102,11 +93,7 @@ void ASwordFlyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 
 	PlayerInputComponent->BindAction("Attack",EInputEvent::IE_Pressed,this,&ASwordFlyCharacter::Attack);
 	PlayerInputComponent->BindAction("Attack",EInputEvent::IE_Released,this,&ASwordFlyCharacter::Attack);
-	/*
-	PlayerInputComponent->BindAction("Run",EInputEvent::IE_Pressed,this,&ASwordFlyCharacter::RunStartClient);
-	PlayerInputComponent->BindAction("Run",EInputEvent::IE_Released,this,&ASwordFlyCharacter::RunEndClient);*/
 	
-	//PlayerInputComponent->BindAction("Inventory")
 }
 
 void ASwordFlyCharacter::MoveForward(float amount)
@@ -116,7 +103,7 @@ void ASwordFlyCharacter::MoveForward(float amount)
 	if (PC && PC->bPauseMenuDisplayed) return;
 
 	if (amount) {
-		//AddMovementInput(SpringArmComp->GetForwardVector(), amount);
+		
 		AddMovementInput(TiredCamera->GetForwardVector(),amount);
 	}
 	
@@ -128,12 +115,12 @@ void ASwordFlyCharacter::MoveRight(float amount)
 
 	if (PC && PC->bPauseMenuDisplayed) return;
 
-	//add input in the camera's right direction
+	
 	if (PC->IsLocalController() && amount) {
-		//AddMovementInput(SpringArmComp->GetRightVector(), amount);
+		
 		AddMovementInput(TiredCamera->GetRightVector(), amount);
 	}
-	//
+	
 }
 
 void ASwordFlyCharacter::RotateCamera(float amount)
@@ -142,7 +129,7 @@ void ASwordFlyCharacter::RotateCamera(float amount)
 
 	if (PC && PC->bPauseMenuDisplayed) return;
 
-	//add rotation on the spring arm's z axis
+	
 	if (PC->IsLocalController() && amount) {
 		FVector rot = SpringArmComp->GetComponentRotation().Euler();
 		rot += FVector(0, 0, amount);
@@ -156,7 +143,7 @@ void ASwordFlyCharacter::ChangeCameraHeight(float amount)
 
 	if (PC && PC->bPauseMenuDisplayed) return;
 
-	//add rotation on spring arm's y axis. Clamp between -45 and -5
+	
 	if (PC->IsLocalController() && amount) {
 		FVector rot = SpringArmComp->GetComponentRotation().Euler();
 
@@ -190,13 +177,23 @@ void ASwordFlyCharacter::SetCharacterState(ECharacterState newState)
 
 ABaseItem* ASwordFlyCharacter::GetCurrentWeapon()
 {
-	return CurrentWeapon;
+	if (GetLocalRole()!=ROLE_Authority) return nullptr;
+	ASwordFlyPlayerState* PS=Cast<ASwordFlyPlayerState>(GetPlayerState());
+	if (PS)
+	{
+		return PS->GetCurrentWeapon();
+	}
+	return nullptr;
 }
 
 void ASwordFlyCharacter::SetCurrentWeapon(ABaseItem* Weapon)
 {
-	CurrentWeapon = Weapon;
-	ASwordFlyBaseWeapon* thisWeapon=Cast<ASwordFlyBaseWeapon>(CurrentWeapon);
+	if (GetLocalRole()!=ROLE_Authority)return;
+	
+	ASwordFlyPlayerState* PS=Cast<ASwordFlyPlayerState>(GetPlayerState());
+	
+	ASwordFlyBaseWeapon* thisWeapon=Cast<ASwordFlyBaseWeapon>(PS->CurrentWeapon);
+	
 	switch (thisWeapon->GetWeaponType())
 	{
 		case EWeaponType::EBow:
@@ -220,172 +217,64 @@ void ASwordFlyCharacter::SetCurrentWeapon(ABaseItem* Weapon)
 
 void ASwordFlyCharacter::PackUp(ABaseItem* Itme)
 {
-	//PackUpServer(Itme);
-	ABaseItem* thisItem = Cast<ABaseItem>(Itme);
-	
-	switch (thisItem->GetItemType()) {
-	case EItmeType::EWeapon:
-		if (GetCurrentWeapon()==nullptr)
-		{
-			Equipment(thisItem);
-			//return;
-		}else
-		{
-			ASwordFlyPlayerState *PS=Cast<ASwordFlyPlayerState>( GetPlayerState());
-	
-			//PS->InformationCompoent->ItmeArray.Add(thisItem);
-			//TArray<FPackItme> ItmeArray =;
-			thisItem->SetActorHiddenInGame(true);
-			for (auto& thisItmeArray:PS->InformationCompoent->ItmeArray)
-			{
-				if (thisItmeArray.thisItem->ItemName==Itme->ItemName)
-				{
-					thisItmeArray.thisItemnumber=thisItmeArray.thisItemnumber+1;
-					return;
-				}
-		
-			}
-			FPackItme newItme;
-			newItme.thisItem=Itme;
-			newItme.thisItemnumber=1;
-			PS->InformationCompoent->ItmeArray.Add(newItme);
-		}
-			
-		
-		break;
-	case EItmeType::EOther:
-		thisItem->Destroy();
-		break;
-	default:
-		thisItem->Destroy();
-		break;
+	if (GetLocalRole()!=ROLE_Authority)return;
+	ASwordFlyPlayerState *PS=Cast<ASwordFlyPlayerState>( GetPlayerState());
+	if (PS)
+	{
+		PS->PackUp(Itme);
 	}
-	
-	return;
 }
 
 void ASwordFlyCharacter::Equipment(ABaseItem* Itme)
 {
-	EquipmentServer(Itme);
+	if (GetLocalRole()!=ROLE_Authority)return;
+	ASwordFlyPlayerState *PS=Cast<ASwordFlyPlayerState>( GetPlayerState());
+	if (PS)
+	{
+		PS->Equipment(Itme);
+	}
 }
 
 void ASwordFlyCharacter::UnEquipment()
 {
-	UnEquipmentServer();
+	if (GetLocalRole()!=ROLE_Authority)return;
+	ASwordFlyPlayerState* PS=Cast<ASwordFlyPlayerState>(GetPlayerState());
+	if (PS)
+	{
+		PS->UnEquipment();
+	}
+	
 }
+
+void ASwordFlyCharacter::SweapWeapon(ABaseItem* newWeapon)
+{
+	if (GetLocalRole()!=ROLE_Authority)return;
+	ASwordFlyPlayerState* PS=Cast<ASwordFlyPlayerState>(GetPlayerState());
+	if (PS)
+	{
+		
+		PS->SweapWeapon(newWeapon);
+	}
+	
+}
+
 
 void ASwordFlyCharacter::Attack()
 {
-	AttackServer();
+	if (GetLocalRole()!=ROLE_Authority)return;
+	ASwordFlyPlayerState* PS=Cast<ASwordFlyPlayerState>(GetPlayerState());
+	if (PS&&PS->CurrentWeapon)
+	{
+		PS->CurrentWeapon->Attack();
+	}
 }
 
 void ASwordFlyCharacter::ReceiveDamage(float var)
 {
-	ReceiveDamageServer(var);	
-}
-
-void ASwordFlyCharacter::ReceiveDamageNetMulticast_Implementation(float var)
-{
-	UE_LOG(LogTemp, Warning, TEXT("ReceiveDamageCharactor"));
-	ASwordFlyPlayerState *PS=Cast<ASwordFlyPlayerState>(GetPlayerState());
-	PS->ReceiveDamage(var);
-	if (PS->CurrentHealth<=0)
+	if (GetLocalRole()!=ROLE_Authority)return;
+	ASwordFlyPlayerState* PS=Cast<ASwordFlyPlayerState>(GetPlayerState());
+	if (PS)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("ReceiveDamageCharactorDestroy"));
-		//this->Destroy();
-		this->GetMesh()->SetAllBodiesSimulatePhysics(true);
-		this->GetMesh()->SetAllBodiesPhysicsBlendWeight(true);
-		this->GetMesh()->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
-		//	this->GetController()->Destroyed();
+		PS->ReceiveDamage(var);
 	}
-}
-
-void ASwordFlyCharacter::ReceiveDamageServer_Implementation(float var)
-{
-	ReceiveDamageNetMulticast(var);
-}
-
-bool ASwordFlyCharacter::ReceiveDamageServer_Validate(float var)
-{
-	return  true;
-}
-
-void ASwordFlyCharacter::AttackServer_Implementation()
-{
-	AttackNetMulticast();
-}
-bool ASwordFlyCharacter::AttackServer_Validate()
-{
-	return true;
-}
-
-void ASwordFlyCharacter::AttackNetMulticast_Implementation()
-{
-	if (CurrentWeapon == nullptr)return;
-	
-	ASwordFlyBaseWeapon* thisWeapon = Cast<ASwordFlyBaseWeapon>(CurrentWeapon);
-	
-	
-	thisWeapon->Attack();
-}
-
-void ASwordFlyCharacter::UnEquipmentServer_Implementation()
-{
-	UnEquipmentNetMulticast();
-}
-
-bool ASwordFlyCharacter::UnEquipmentServer_Validate()
-{
-	return true;
-}
-
-void ASwordFlyCharacter::UnEquipmentNetMulticast_Implementation()
-{
-	if (CurrentCharacterState==ECharacterState::ENone)return;
-	
-	ASwordFlyBaseWeapon* ThisWeapon =Cast<ASwordFlyBaseWeapon>(CurrentWeapon);
-	ThisWeapon->UnEquipment(this);
-}
-
-void ASwordFlyCharacter::EquipmentNetMulticast_Implementation(ABaseItem* Itme)
-{
-	ASwordFlyBaseWeapon* NewWeapon = Cast<ASwordFlyBaseWeapon>(Itme);
-
-		NewWeapon->Equipment(this);
-		
-	
-}
-
-void ASwordFlyCharacter::EquipmentServer_Implementation(ABaseItem* Itme)
-{
-	EquipmentNetMulticast(Itme);
-}
-bool ASwordFlyCharacter::EquipmentServer_Validate(ABaseItem* Itme)
-{
-	return true;
-}
-
-void ASwordFlyCharacter::PackUpServer_Implementation(ABaseItem* Itme)
-{
-	PackUpNetMulticast(Itme);
-}
-bool ASwordFlyCharacter::PackUpServer_Validate(ABaseItem* Itme)
-{
-	return true;
-}
-void ASwordFlyCharacter::PackUpNetMulticast_Implementation(ABaseItem* Itme)
-{
-	/*ABaseItem* thisItem = Cast<ABaseItem>(Itme);
-	//EItmeType type= thisItem->GetItemType();
-	switch (thisItem->GetItemType()) {
-	case EItmeType::EWeapon:
-		Equipment(thisItem);
-		break;
-	case EItmeType::EOther:
-		thisItem->Destroy();
-		break;
-	default:
-		thisItem->Destroy();
-		break;
-	}*/
 }

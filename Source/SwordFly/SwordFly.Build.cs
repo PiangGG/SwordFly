@@ -17,7 +17,8 @@ public class SwordFly : ModuleRules
 		
 		// Uncomment if you are using online features
 		 PrivateDependencyModuleNames.Add("OnlineSubsystem");
-
+		 
+		 bEnableUndefinedIdentifierWarnings = false;
 		// To include OnlineSubsystemSteam, add it to the plugins section in your uproject file with the Enabled attribute set to true
 	}
 }

@@ -21,7 +21,7 @@ public:
 	ASwordFlyPlayerController();
 
 	//To hold a reference to our UMG HUD widget
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Platformer Player Controller")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Player")
 	TSubclassOf<class UUserWidget> cHUD;
 
 	//HUD instance
@@ -54,13 +54,21 @@ public:
 	void ShowPlayerList();
 	
 	void HidePlayerList();
-
-	UFUNCTION(BlueprintCallable, Category = "Platformer Player Controller")
-    void HideAllMenus();
-
+	//装备信息面板
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Player")
+	TSubclassOf<class UUserWidget> InfoWBP;
 	//库存
 	void Inventory();
 	bool bisInventoryOpen;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Player")
+	UUserWidget *InfoWBPList;
+
+	UFUNCTION(BlueprintNativeEvent)
+	void UpDateInfoWBPList();
+	UFUNCTION(BlueprintCallable, Category = "Platformer Player Controller")
+    void HideAllMenus();
+
+	
 
 	bool isRuning;
 	UFUNCTION()

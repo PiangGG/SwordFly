@@ -38,7 +38,6 @@ void ASword::AttackNetMulticast()
           
             PlayerAnimation->Montage_Play(AttackAnimMontage);
             PlayerAnimation->Montage_JumpToSection("SwordAttack",AttackAnimMontage);
-            
         }
            
     }
