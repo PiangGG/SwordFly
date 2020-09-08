@@ -4,7 +4,7 @@
 #include "SwordFlyInformationrComponent.h"
 #include "SwordFly/Itme/Weapons/Sword.h"
 #include "SwordFly/Itme/Weapons/SwordFlyBaseWeapon.h"
-
+#include "SwordFly/GamePlay/Character/SwordFlyCharacter.h"
 // Sets default values for this component's properties
 USwordFlyInformationrComponent::USwordFlyInformationrComponent()
 {
@@ -34,27 +34,27 @@ void USwordFlyInformationrComponent::TickComponent(float DeltaTime, ELevelTick T
 	// ...
 }
 
-void USwordFlyInformationrComponent::Equipment(ABaseItem* Item)
+void USwordFlyInformationrComponent::Equipment(ASwordFlyBaseWeapon* Item)
 {
 	EquipmentServer(Item);
 }
 
-void USwordFlyInformationrComponent::UnEquipmen(ABaseItem* Item, int32 var)
+void USwordFlyInformationrComponent::UnEquipmen(ASwordFlyBaseWeapon* Item, int32 var)
 {
 	UnEquipmenServer(Item,var);
 }
 
-void USwordFlyInformationrComponent::UnEquipmenServer_Implementation(ABaseItem* Item, int32 var)
+void USwordFlyInformationrComponent::UnEquipmenServer_Implementation(ASwordFlyBaseWeapon* Item, int32 var)
 {
 	UnEquipmenNetMulticast(Item,var);
 }
 
-bool USwordFlyInformationrComponent::UnEquipmenServer_Validate(ABaseItem* Item, int32 var)
+bool USwordFlyInformationrComponent::UnEquipmenServer_Validate(ASwordFlyBaseWeapon* Item, int32 var)
 {
 	return true;
 }
 
-void USwordFlyInformationrComponent::UnEquipmenNetMulticast_Implementation(ABaseItem* Item, int32 var)
+void USwordFlyInformationrComponent::UnEquipmenNetMulticast_Implementation(ASwordFlyBaseWeapon* Item, int32 var)
 {
 	if (GetOwnerRole()!=ROLE_Authority)return;
 	if (!Item)return;
@@ -82,7 +82,10 @@ void USwordFlyInformationrComponent::UnEquipmenNetMulticast_Implementation(ABase
 	default:
 		break;
 	}
-	//thisItem->UnEquipment(Cast<ASwordFlyCharacter>(GetWorld()->GetFirstPlayerController()->GetCharacter()));
+	ASwordFlyCharacter *PC=Cast<ASwordFlyCharacter>(GetWorld()->GetFirstPlayerController()->GetCharacter());
+	if (!PC)return;
+	CurrentWeapon=nullptr;
+	thisItem->UnEquipment(PC);
 }
 
 void USwordFlyInformationrComponent::Putbackpack(ABaseItem* Item, int32 var)
@@ -92,24 +95,31 @@ void USwordFlyInformationrComponent::Putbackpack(ABaseItem* Item, int32 var)
 
 void USwordFlyInformationrComponent::PutbackpackNetMulticast_Implementation(ABaseItem* Item, int32 var)
 {
+	
 	if (GetOwnerRole()!=ROLE_Authority)return;
+	
 	if (!Item)return;
 	if (var<=0)return;
 	switch (Item->GetItemType())
 	{
-case EItmeType::EWeapon:
+		
+	case EItmeType::EWeapon:
 	{
+			
 		ASwordFlyBaseWeapon* thisItem=Cast<ASwordFlyBaseWeapon>(Item);
 		if (!thisItem)return;
-	
+		
 		switch (thisItem->GetWeaponType())
 		{
 		case EWeaponType::ESword:
 			{
-				if (CurrentWeaponArray.IsValidIndex(0))
+				
+				if (CurrentWeaponArray.IsValidIndex(0)==false)
 				{
 					//CurrentWeaponArray.Insert(*thisItem,0);
 					Equipment(thisItem);
+					CurrentWeaponArray.Insert(thisItem,0);
+					UE_LOG(LogTemp, Warning, TEXT("Equipment(thisItem);"));
 				}else
 				{
 					thisItem->SetActorHiddenInGame(true);
@@ -132,9 +142,10 @@ case EItmeType::EWeapon:
 			}
 		case EWeaponType::EBow:
 			{
-				if (CurrentWeaponArray.IsValidIndex(1))
+				if (CurrentWeaponArray.IsValidIndex(1)==false)
 				{
 					//CurrentWeaponArray.Insert(*thisItem,0);
+					CurrentWeaponArray.Insert(thisItem,0);
 					Equipment(thisItem);
 				}else
 				{
@@ -187,7 +198,7 @@ case EItmeType::EWeapon:
 		default: break;
 	}
 	
-	
+	UE_LOG(LogTemp, Warning, TEXT("PutbackpackNetMulticast_Implementation"));
 }
 
 void USwordFlyInformationrComponent::PutbackpackServer_Implementation(ABaseItem* Item, int32 var)
@@ -200,21 +211,27 @@ bool USwordFlyInformationrComponent::PutbackpackServer_Validate(ABaseItem* Item,
 	return true;
 }
 
-void USwordFlyInformationrComponent::EquipmentServerNetMulticast_Implementation(ABaseItem* Item)
+void USwordFlyInformationrComponent::EquipmentServerNetMulticast_Implementation(ASwordFlyBaseWeapon* Item)
 {
+	UE_LOG(LogTemp, Warning, TEXT("EquipmentServerNetMulticast_Implementation"));
 	if (GetOwnerRole()!=ROLE_Authority)return;
 	if (!Item)return;
 	ASwordFlyBaseWeapon* thisItem=Cast<ASwordFlyBaseWeapon>(Item);
 	if (!thisItem)return;
-//	thisItem->Equipment(Cast<ASwordFlyCharacter>(GetWorld()->GetFirstPlayerController()->GetCharacter()));
+	ASwordFlyCharacter *Player=Cast<ASwordFlyCharacter>(GetWorld()->GetFirstPlayerController()->GetCharacter());
+	if (!Player)return;
+	if (CurrentWeapon)return;
+	CurrentWeapon=thisItem;
+	
+	thisItem->Equipment(Player);
 }
 
-void USwordFlyInformationrComponent::EquipmentServer_Implementation(ABaseItem* Item)
+void USwordFlyInformationrComponent::EquipmentServer_Implementation(ASwordFlyBaseWeapon* Item)
 {
 	EquipmentServerNetMulticast(Item);
 }
 
-bool USwordFlyInformationrComponent::EquipmentServer_Validate(ABaseItem* Item)
+bool USwordFlyInformationrComponent::EquipmentServer_Validate(ASwordFlyBaseWeapon* Item)
 {
 	return  true;
 }

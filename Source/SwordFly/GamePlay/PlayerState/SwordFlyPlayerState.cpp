@@ -21,7 +21,7 @@ void ASwordFlyPlayerState::SetCurrentWeapon(ASwordFlyBaseWeapon* NewWeapon)
 {
 }
 
-void ASwordFlyPlayerState::SweapWeapon(ABaseItem* newWeapon)
+void ASwordFlyPlayerState::SweapWeapon(ASwordFlyBaseWeapon* newWeapon)
 {
     /*if (CurrentWeapon)
     {
@@ -45,42 +45,6 @@ void ASwordFlyPlayerState::SweapWeapon(ABaseItem* newWeapon)
 
 void ASwordFlyPlayerState::PackUp(ABaseItem* Itme)
 {
-    /*ABaseItem* thisItem = Cast<ABaseItem>(Itme);
-    UE_LOG(LogTemp, Warning, TEXT("PackUp"));
-    switch (thisItem->GetItemType()) {
-    case EItmeType::EWeapon:
-        if (GetCurrentWeapon()==nullptr)
-        {
-            Equipment(thisItem);
-            //return;
-        }else
-        {
-            ASwordFlyPlayerState *PS=Cast<ASwordFlyPlayerState>( this);
-	
-            thisItem->SetActorHiddenInGame(true);
-            for (auto& thisItmeArray:PS->InformationCompoent->PackItmeArray)
-            {
-                if (thisItmeArray.thisItem->ItemName==Itme->ItemName)
-                {
-                    thisItmeArray.thisItemnumber=thisItmeArray.thisItemnumber+1;
-                    return;
-                }
-		
-            }
-            FPackItme newItme;
-            newItme.thisItem=Itme;
-            newItme.thisItemnumber=1;
-            PS->InformationCompoent->PackItmeArray.Add(newItme);
-        }	
-        break;
-    case EItmeType::EOther:
-        thisItem->Destroy();
-        break;
-    default:
-        thisItem->Destroy();
-        break;
-    }*/
-
     if (InformationCompoent)
     {
         InformationCompoent->Putbackpack(Itme,1);
@@ -110,19 +74,21 @@ void ASwordFlyPlayerState::GetLifetimeReplicatedProps(TArray< FLifetimeProperty 
     DOREPLIFETIME(ASwordFlyPlayerState, CurrentVitality);
     DOREPLIFETIME(ASwordFlyPlayerState, MaxVitality);
 }
-void ASwordFlyPlayerState::Equipment(ABaseItem* Itme)
+void ASwordFlyPlayerState::Equipment(ASwordFlyBaseWeapon* Itme)
 {
     if (InformationCompoent)
     {
+        UE_LOG(LogTemp, Warning, TEXT("ASwordFlyPlayerState::Equipment"));
         InformationCompoent->Equipment(Itme);
     }
 }
 
 void ASwordFlyPlayerState::UnEquipment()
 {
+    
     if (InformationCompoent)
     {
-        //InformationCompoent->UnEquipmen(InformationCompoent->CurrentWeaponArray);
+        InformationCompoent->UnEquipmen(InformationCompoent->CurrentWeapon,1);
     }
     
 }

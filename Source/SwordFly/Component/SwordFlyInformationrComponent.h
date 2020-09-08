@@ -45,18 +45,18 @@ public:
 	ASwordFlyBaseWeapon* CurrentWeapon;
 	//穿戴装备
 	UFUNCTION(BlueprintCallable)
-	void Equipment(ABaseItem* Item);
+	void Equipment(ASwordFlyBaseWeapon* Item);
 	UFUNCTION(Reliable,WithValidation,Server)
-	void EquipmentServer(ABaseItem* Item);
+	void EquipmentServer(ASwordFlyBaseWeapon* Item);
 	UFUNCTION(NetMulticast,Reliable)
-	void EquipmentServerNetMulticast(ABaseItem* Item);
+	void EquipmentServerNetMulticast(ASwordFlyBaseWeapon* Item);
 	
 	UFUNCTION(BlueprintCallable)
-	void UnEquipmen(ABaseItem* Item,int32 var);
+	void UnEquipmen(ASwordFlyBaseWeapon* Item,int32 var);
 	UFUNCTION(Reliable,WithValidation,Server)
-	void UnEquipmenServer(ABaseItem* Item,int32 var);
+	void UnEquipmenServer(ASwordFlyBaseWeapon* Item,int32 var);
 	UFUNCTION(NetMulticast,Reliable)
-	void UnEquipmenNetMulticast(ABaseItem* Item,int32 var);
+	void UnEquipmenNetMulticast(ASwordFlyBaseWeapon* Item,int32 var);
 
 	UFUNCTION(BlueprintCallable)
 	void Putbackpack(ABaseItem* Item,int32 var);

@@ -8,6 +8,8 @@
 #include "Net/UnrealNetwork.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "SwordFly/Component/SwordFlyInformationrComponent.h"
+#include "SwordFly/GamePlay/PlayerState/SwordFlyPlayerState.h"
 
 // Sets default values
 ABaseItem::ABaseItem()
@@ -89,7 +91,12 @@ void ABaseItem::Collision_Pack_BeginOverlapNetMulticast_Implementation(UPrimitiv
 		Mesh->SetSimulatePhysics(false);
 		Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		thisOwner = Player;
-		Player->PackUp(this);
+		ASwordFlyPlayerState *PS=Cast<ASwordFlyPlayerState>(Player->GetPlayerState());
+		
+		USwordFlyInformationrComponent *infor=Cast<USwordFlyInformationrComponent>(PS->InformationCompoent);
+		UE_LOG(LogTemp, Warning, TEXT("Collision_Pack_BeginOverlapNetMulticast_Implementation"));
+		infor->Putbackpack(this,1);
+		//Player->PackUp(this);
 	}
 }
 

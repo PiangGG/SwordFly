@@ -101,23 +101,23 @@ FRotator ASwordFlyBaseWeapon::SetOwerRotation()
     return newRotator;
 }
 
-void ASwordFlyBaseWeapon::Equipment(class ASwordFlyCharacter* Player)
+void ASwordFlyBaseWeapon::Equipment(ASwordFlyCharacter* Player)
 {
     EquipmentServer(Player);
 }
 
-void ASwordFlyBaseWeapon::EquipmentServer_Implementation(class ASwordFlyCharacter* Player)
+void ASwordFlyBaseWeapon::EquipmentServer_Implementation(ASwordFlyCharacter* Player)
 {
     EquipmentNetMulticast(Player);
 }
 
-bool ASwordFlyBaseWeapon::EquipmentServer_Validate(class ASwordFlyCharacter* Player)
+bool ASwordFlyBaseWeapon::EquipmentServer_Validate(ASwordFlyCharacter* Player)
 {
     return true;
 
 }
 
-void ASwordFlyBaseWeapon::EquipmentNetMulticast_Implementation(class ASwordFlyCharacter* Player)
+void ASwordFlyBaseWeapon::EquipmentNetMulticast_Implementation(ASwordFlyCharacter* Player)
 {
     if (GetLocalRole()==ROLE_Authority)
     {

@@ -6,6 +6,7 @@
 #include "GameFramework/PlayerState.h"
 #include "SwordFlyPlayerState.generated.h"
 
+class ABaseItem;
 /**
  * 
  */
@@ -41,13 +42,13 @@ public:
 	void SetCurrentWeapon(class ASwordFlyBaseWeapon* NewWeapon);
 
 	UFUNCTION(BlueprintCallable)
-	void SweapWeapon(class ABaseItem* newWeapon);
+	void SweapWeapon(class ASwordFlyBaseWeapon* newWeapon);
 	
 	UFUNCTION(BlueprintCallable)
 	void PackUp(ABaseItem* Itme);
 	
 	UFUNCTION(BlueprintCallable)
-	void Equipment(ABaseItem* Itme);
+	void Equipment(ASwordFlyBaseWeapon* Itme);
 	
 	UFUNCTION(BlueprintCallable)
 	void UnEquipment();

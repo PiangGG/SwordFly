@@ -85,7 +85,7 @@ public:
 
 	//装备武器
 	UFUNCTION(BlueprintCallable)
-	void Equipment(class ABaseItem* Itme);
+	void Equipment(class ASwordFlyBaseWeapon* Itme);
 	
 
 	UFUNCTION(BlueprintCallable)
@@ -93,7 +93,7 @@ public:
 	
 
 	UFUNCTION(BlueprintCallable)
-    void SweapWeapon(class ABaseItem* newWeapon);
+    void SweapWeapon(class ASwordFlyBaseWeapon* newWeapon);
 	
 	UFUNCTION(BlueprintCallable)
 		void Attack();
