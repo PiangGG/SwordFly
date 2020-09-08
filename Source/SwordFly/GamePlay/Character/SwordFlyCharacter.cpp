@@ -181,7 +181,7 @@ ABaseItem* ASwordFlyCharacter::GetCurrentWeapon()
 	ASwordFlyPlayerState* PS=Cast<ASwordFlyPlayerState>(GetPlayerState());
 	if (PS)
 	{
-		return PS->GetCurrentWeapon();
+		//return PS->;
 	}
 	return nullptr;
 }
@@ -192,9 +192,9 @@ void ASwordFlyCharacter::SetCurrentWeapon(ABaseItem* Weapon)
 	
 	ASwordFlyPlayerState* PS=Cast<ASwordFlyPlayerState>(GetPlayerState());
 	
-	ASwordFlyBaseWeapon* thisWeapon=Cast<ASwordFlyBaseWeapon>(PS->CurrentWeapon);
+	//ASwordFlyBaseWeapon* thisWeapon=Cast<ASwordFlyBaseWeapon>(PS->CurrentWeapon);
 	
-	switch (thisWeapon->GetWeaponType())
+	/*switch (thisWeapon->GetWeaponType())
 	{
 		case EWeaponType::EBow:
 			{
@@ -212,7 +212,7 @@ void ASwordFlyCharacter::SetCurrentWeapon(ABaseItem* Weapon)
 				break;
 			}
 		default: break;;
-	}
+	}*/
 }
 
 void ASwordFlyCharacter::PackUp(ABaseItem* Itme)
@@ -263,10 +263,7 @@ void ASwordFlyCharacter::Attack()
 {
 	if (GetLocalRole()!=ROLE_Authority)return;
 	ASwordFlyPlayerState* PS=Cast<ASwordFlyPlayerState>(GetPlayerState());
-	if (PS&&PS->CurrentWeapon)
-	{
-		PS->CurrentWeapon->Attack();
-	}
+	
 }
 
 void ASwordFlyCharacter::ReceiveDamage(float var)

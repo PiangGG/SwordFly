@@ -23,6 +23,7 @@ AArrow::AArrow()
     Mesh->SetRelativeRotation(FRotator(0,180,0));
     
     DamageVar=20.f;
+    ActorID=4;
 }
 
 void AArrow::Collision_Pack_BeginOverlap(UPrimitiveComponent* Component, AActor* OtherActor,

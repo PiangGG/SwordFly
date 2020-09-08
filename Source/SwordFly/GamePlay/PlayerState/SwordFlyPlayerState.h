@@ -4,9 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerState.h"
-#include "SwordFly/Component/SwordFlyInformationrComponent.h"
-#include "SwordFly/Itme/Weapons/SwordFlyBaseWeapon.h"
-
 #include "SwordFlyPlayerState.generated.h"
 
 /**
@@ -34,17 +31,17 @@ public:
 	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly, Category = "Player State")
 	float MaxVitality;
 
-	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly, Category = "Player State")
-	ASwordFlyBaseWeapon *CurrentWeapon;
+	/*UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly, Category = "Player State")
+	TArray<ASwordFlyBaseWeapon> *CurrentWeapon;
 	
 	UFUNCTION(BlueprintCallable)
-	ASwordFlyBaseWeapon* GetCurrentWeapon();
+	TArray<ASwordFlyBaseWeapon>* GetCurrentWeapon();*/
 	
 	UFUNCTION(BlueprintCallable)
-	void SetCurrentWeapon(ASwordFlyBaseWeapon* NewWeapon);
+	void SetCurrentWeapon(class ASwordFlyBaseWeapon* NewWeapon);
 
 	UFUNCTION(BlueprintCallable)
-	void SweapWeapon(ABaseItem* newWeapon);
+	void SweapWeapon(class ABaseItem* newWeapon);
 	
 	UFUNCTION(BlueprintCallable)
 	void PackUp(ABaseItem* Itme);

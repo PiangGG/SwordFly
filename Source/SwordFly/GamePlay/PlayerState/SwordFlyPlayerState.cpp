@@ -3,6 +3,8 @@
 
 #include "SwordFlyPlayerState.h"
 #include "Net/UnrealNetwork.h"
+#include "SwordFly/Component/SwordFlyInformationrComponent.h"
+#include "SwordFly/Itme/Weapons/SwordFlyBaseWeapon.h"
 
 ASwordFlyPlayerState::ASwordFlyPlayerState()
 {
@@ -13,22 +15,15 @@ ASwordFlyPlayerState::ASwordFlyPlayerState()
     MaxVitality=100.f;
     CurrentVitality=MaxVitality;
     PlayerSpeed = 300.f;
-    CurrentWeapon=nullptr;
-}
-
-ASwordFlyBaseWeapon* ASwordFlyPlayerState::GetCurrentWeapon()
-{
-    return CurrentWeapon;
 }
 
 void ASwordFlyPlayerState::SetCurrentWeapon(ASwordFlyBaseWeapon* NewWeapon)
 {
-    CurrentWeapon=NewWeapon;
 }
 
 void ASwordFlyPlayerState::SweapWeapon(ABaseItem* newWeapon)
 {
-    if (CurrentWeapon)
+    /*if (CurrentWeapon)
     {
         UE_LOG(LogTemp, Warning, TEXT("SweapWeapon"));
         ASwordFlyPlayerState *PS=Cast<ASwordFlyPlayerState>( this);
@@ -45,12 +40,12 @@ void ASwordFlyPlayerState::SweapWeapon(ABaseItem* newWeapon)
         }
         CurrentWeapon=nullptr;
         Equipment(newWeapon);
-    }
+    }*/
 }
 
 void ASwordFlyPlayerState::PackUp(ABaseItem* Itme)
 {
-    ABaseItem* thisItem = Cast<ABaseItem>(Itme);
+    /*ABaseItem* thisItem = Cast<ABaseItem>(Itme);
     UE_LOG(LogTemp, Warning, TEXT("PackUp"));
     switch (thisItem->GetItemType()) {
     case EItmeType::EWeapon:
@@ -63,7 +58,7 @@ void ASwordFlyPlayerState::PackUp(ABaseItem* Itme)
             ASwordFlyPlayerState *PS=Cast<ASwordFlyPlayerState>( this);
 	
             thisItem->SetActorHiddenInGame(true);
-            for (auto& thisItmeArray:PS->InformationCompoent->ItmeArray)
+            for (auto& thisItmeArray:PS->InformationCompoent->PackItmeArray)
             {
                 if (thisItmeArray.thisItem->ItemName==Itme->ItemName)
                 {
@@ -75,7 +70,7 @@ void ASwordFlyPlayerState::PackUp(ABaseItem* Itme)
             FPackItme newItme;
             newItme.thisItem=Itme;
             newItme.thisItemnumber=1;
-            PS->InformationCompoent->ItmeArray.Add(newItme);
+            PS->InformationCompoent->PackItmeArray.Add(newItme);
         }	
         break;
     case EItmeType::EOther:
@@ -84,6 +79,11 @@ void ASwordFlyPlayerState::PackUp(ABaseItem* Itme)
     default:
         thisItem->Destroy();
         break;
+    }*/
+
+    if (InformationCompoent)
+    {
+        InformationCompoent->Putbackpack(Itme,1);
     }
 }
 
@@ -109,25 +109,20 @@ void ASwordFlyPlayerState::GetLifetimeReplicatedProps(TArray< FLifetimeProperty 
     DOREPLIFETIME(ASwordFlyPlayerState, MaxHealth);
     DOREPLIFETIME(ASwordFlyPlayerState, CurrentVitality);
     DOREPLIFETIME(ASwordFlyPlayerState, MaxVitality);
-    DOREPLIFETIME(ASwordFlyPlayerState, CurrentWeapon);
 }
 void ASwordFlyPlayerState::Equipment(ABaseItem* Itme)
 {
-    ASwordFlyBaseWeapon* NewWeapon = Cast<ASwordFlyBaseWeapon>(Itme);
-    if (NewWeapon)
+    if (InformationCompoent)
     {
-        NewWeapon->Equipment(this);
-        UE_LOG(LogTemp, Warning, TEXT("Equipment"));
-    } 
+        InformationCompoent->Equipment(Itme);
+    }
 }
 
 void ASwordFlyPlayerState::UnEquipment()
 {
-    if (CurrentWeapon)
-
-        {ASwordFlyBaseWeapon* thisCurrentWeapon = Cast<ASwordFlyBaseWeapon>(CurrentWeapon);
-        thisCurrentWeapon->UnEquipment(this);
-        UE_LOG(LogTemp, Warning, TEXT("UnEquipment"));
+    if (InformationCompoent)
+    {
+        //InformationCompoent->UnEquipmen(InformationCompoent->CurrentWeaponArray);
     }
     
 }

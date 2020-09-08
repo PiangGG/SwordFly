@@ -36,6 +36,8 @@ ABaseItem::ABaseItem()
 	bReplayRewindable = true;
 	bAlwaysRelevant = true;
 	AActor::SetReplicateMovement(true);
+
+	ActorID=0;
 }
 
 // Called when the game starts or when spawned

@@ -61,14 +61,14 @@ public:
 	FName AttachLocation;
 	
 	UFUNCTION(BlueprintCallable)
-	virtual void Equipment(class ASwordFlyPlayerState* PS);
+	virtual void Equipment(class ASwordFlyCharacter* Player);
 
 	UFUNCTION(Server,BlueprintCallable,WithValidation,Reliable)
-	virtual void EquipmentServer(class ASwordFlyPlayerState* PS);
+	virtual void EquipmentServer(class ASwordFlyCharacter* Player);
 	
 	UFUNCTION(NetMulticast, Reliable)
-	virtual void EquipmentNetMulticast(class ASwordFlyPlayerState* PS);
+	virtual void EquipmentNetMulticast(class ASwordFlyCharacter* Player);
 	
-	virtual void UnEquipment(class ASwordFlyPlayerState* PS);
+	virtual void UnEquipment(class ASwordFlyCharacter* Player);
 	
 };

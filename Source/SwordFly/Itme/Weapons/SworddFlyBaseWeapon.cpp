@@ -38,6 +38,7 @@ ASwordFlyBaseWeapon::ASwordFlyBaseWeapon()
     AActor::SetReplicateMovement(true);
 
     isAttack=false;
+    ActorID=1;
 }
 
 void ASwordFlyBaseWeapon::SetItmeType(EItmeType Type)
@@ -100,22 +101,23 @@ FRotator ASwordFlyBaseWeapon::SetOwerRotation()
     return newRotator;
 }
 
-void ASwordFlyBaseWeapon::Equipment(ASwordFlyPlayerState* PS)
+void ASwordFlyBaseWeapon::Equipment(class ASwordFlyCharacter* Player)
 {
-    EquipmentServer(PS);
+    EquipmentServer(Player);
 }
 
-void ASwordFlyBaseWeapon::EquipmentServer_Implementation(ASwordFlyPlayerState* PS)
+void ASwordFlyBaseWeapon::EquipmentServer_Implementation(class ASwordFlyCharacter* Player)
 {
-    EquipmentNetMulticast(PS);
+    EquipmentNetMulticast(Player);
 }
 
-bool ASwordFlyBaseWeapon::EquipmentServer_Validate(ASwordFlyPlayerState* PS)
+bool ASwordFlyBaseWeapon::EquipmentServer_Validate(class ASwordFlyCharacter* Player)
 {
     return true;
+
 }
 
-void ASwordFlyBaseWeapon::EquipmentNetMulticast_Implementation(ASwordFlyPlayerState* PS)
+void ASwordFlyBaseWeapon::EquipmentNetMulticast_Implementation(class ASwordFlyCharacter* Player)
 {
     if (GetLocalRole()==ROLE_Authority)
     {
@@ -134,19 +136,19 @@ void ASwordFlyBaseWeapon::EquipmentNetMulticast_Implementation(ASwordFlyPlayerSt
         this->AttachToComponent(thisOwner->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, this->AttachLocation);
 
         this->SetActorHiddenInGame(false);
-        PS->SetCurrentWeapon(this);
+        //PS->SetCurrentWeapon(this);
         thisOwner->SetCurrentWeapon(this);
     }
     
 }
 
-void ASwordFlyBaseWeapon::UnEquipment(ASwordFlyPlayerState* PS)
+void ASwordFlyBaseWeapon::UnEquipment(class ASwordFlyCharacter* Player)
 {
-    if (thisOwner&&PS)
+    if (thisOwner)
     {
         //ASwordFlyPlayerState thisPS=Cast<ASwordFlyPlayerState>(thisOwner->GetPlayerState());
         thisOwner->SetCharacterState(ECharacterState::ENone);
-        PS->CurrentWeapon=nullptr;
+        //PS->CurrentWeapon=nullptr;
         this->AfterThroud(thisOwner);
     }
 }

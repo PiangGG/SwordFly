@@ -15,6 +15,7 @@ ASword::ASword()
 
     Collision_Capsule=CreateDefaultSubobject<UCapsuleComponent>(FName("Collision_Capsule"));
     Collision_Capsule->SetupAttachment(RootComponent);
+    ActorID=2;
 }
 
 void ASword::Attack()

@@ -36,6 +36,39 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly)
-	TArray<FPackItme> ItmeArray;
-		
+	TArray<FPackItme> PackItmeArray;
+	
+	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly)
+	TArray<class ASwordFlyBaseWeapon*> CurrentWeaponArray;
+
+	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly)
+	ASwordFlyBaseWeapon* CurrentWeapon;
+	//穿戴装备
+	UFUNCTION(BlueprintCallable)
+	void Equipment(ABaseItem* Item);
+	UFUNCTION(Reliable,WithValidation,Server)
+	void EquipmentServer(ABaseItem* Item);
+	UFUNCTION(NetMulticast,Reliable)
+	void EquipmentServerNetMulticast(ABaseItem* Item);
+	
+	UFUNCTION(BlueprintCallable)
+	void UnEquipmen(ABaseItem* Item,int32 var);
+	UFUNCTION(Reliable,WithValidation,Server)
+	void UnEquipmenServer(ABaseItem* Item,int32 var);
+	UFUNCTION(NetMulticast,Reliable)
+	void UnEquipmenNetMulticast(ABaseItem* Item,int32 var);
+
+	UFUNCTION(BlueprintCallable)
+	void Putbackpack(ABaseItem* Item,int32 var);
+	UFUNCTION(Reliable,WithValidation,Server)
+	void PutbackpackServer(ABaseItem* Item,int32 var);
+	UFUNCTION(NetMulticast,Reliable)
+	void PutbackpackNetMulticast(ABaseItem* Item,int32 var);
+
+	UFUNCTION(BlueprintCallable)
+    void OutPutbackpack(ABaseItem* Item,int32 var);
+	UFUNCTION(Reliable,WithValidation,Server)
+    void OutPutbackpackServer(ABaseItem* Item,int32 var);
+	UFUNCTION(NetMulticast,Reliable)
+    void OutPutbackpackNetMulticast(ABaseItem* Item,int32 var);
 };

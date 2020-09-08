@@ -18,6 +18,7 @@ ABow::ABow()
     this->thisOwner=nullptr;
     ASwordFlyBaseWeapon::SetWeaponType(EWeaponType::EBow);
     AttachLocation="Socket_Left_FString";
+    ActorID=3;
 }
 
 void ABow::Attack()
