@@ -59,16 +59,20 @@ public:
 	bool isAttack;
 
 	FName AttachLocation;
-	
+	FName AttachBackLocation;
 	UFUNCTION(BlueprintCallable)
 	virtual void Equipment(class ASwordFlyCharacter* Player);
-
 	UFUNCTION(Server,BlueprintCallable,WithValidation,Reliable)
 	virtual void EquipmentServer(class ASwordFlyCharacter* Player);
-	
 	UFUNCTION(NetMulticast, Reliable)
 	virtual void EquipmentNetMulticast(class ASwordFlyCharacter* Player);
-	
+
+	UFUNCTION(BlueprintCallable)
 	virtual void UnEquipment(class ASwordFlyCharacter* Player);
-	
+	UFUNCTION(Server,BlueprintCallable,WithValidation,Reliable)
+	virtual void UnEquipmentServer(class ASwordFlyCharacter* Player);
+	UFUNCTION(NetMulticast, Reliable)
+	virtual void UnEquipmentNetMulticast(class ASwordFlyCharacter* Player);
+
+	virtual void Pack(ASwordFlyCharacter* theOwner) override;
 };

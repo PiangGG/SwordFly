@@ -27,4 +27,8 @@ class SWORDFLY_API AArrow : public ASwordFlyBaseWeapon
 	float DamageVar;
 
 	virtual void BeginPlay() override;
+
+	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly)
+	float TimeLive;
+	virtual void Tick(float DeltaSeconds) override;
 };

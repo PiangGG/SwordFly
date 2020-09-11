@@ -69,7 +69,13 @@ public:
 	virtual void AfterThroudServer(class ASwordFlyCharacter* theOwner);
 	UFUNCTION(NetMulticast, Reliable)
 	virtual void AfterThroudNetMulticast(class ASwordFlyCharacter* theOwner);
-	
+
+	UFUNCTION(BlueprintCallable)
+    virtual void Pack(class ASwordFlyCharacter* theOwner);
+	UFUNCTION(Server, WithValidation, Reliable)
+    virtual void PackServer(class ASwordFlyCharacter* theOwner);
+	UFUNCTION(NetMulticast, Reliable)
+    virtual void PackNetMulticast(class ASwordFlyCharacter* theOwner);
 	//拾取定时器
 	FTimerHandle MemberTimerHandle;
 	//重置定时器

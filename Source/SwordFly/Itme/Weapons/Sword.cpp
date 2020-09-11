@@ -8,11 +8,12 @@
 ASword::ASword()
 {
     PrimaryActorTick.bCanEverTick = true;
-   
+
     this->thisOwner=nullptr;
     ASwordFlyBaseWeapon::SetWeaponType(EWeaponType::ESword);
     AttachLocation="Socket_Right_FString";
-
+    AttachBackLocation="AttachBackLocation1";
+    
     Collision_Capsule=CreateDefaultSubobject<UCapsuleComponent>(FName("Collision_Capsule"));
     Collision_Capsule->SetupAttachment(RootComponent);
     ActorID=2;

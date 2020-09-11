@@ -11,6 +11,7 @@
 #include "Animation/AnimMontage.h"
 #include "SwordFly/GamePlay/PlayerState/SwordFlyPlayerState.h"
 #include "Components/SphereComponent.h"
+#include "SwordFly/Component/SwordFlyInformationrComponent.h"
 
 void ASwordFlyBaseWeapon::Tick(float DeltaSeconds)
 {
@@ -64,6 +65,8 @@ bool ASwordFlyBaseWeapon::AttackServer_Validate()
 
 void ASwordFlyBaseWeapon::AttackNetMulticast_Implementation()
 {
+    //if (GetLocalRole()=ROLE_Authority)return;
+    
     if (thisOwner == nullptr)return;
     
     UAnimInstance* PlayerAnimation = thisOwner->GetMesh()->GetAnimInstance();
@@ -81,7 +84,11 @@ void ASwordFlyBaseWeapon::AttackNetMulticast_Implementation()
 
 void ASwordFlyBaseWeapon::Collision_Pack_BeginOverlap(UPrimitiveComponent* Component, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+    if (GetLocalRole()!=ROLE_Authority)return;
     Super::Collision_Pack_BeginOverlap(Component, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult);
+    ASwordFlyCharacter* Player = Cast<ASwordFlyCharacter>(OtherActor);
+    thisOwner=Player;
+    Pack(Player);
 }
 
 EWeaponType ASwordFlyBaseWeapon::GetWeaponType()
@@ -119,36 +126,103 @@ bool ASwordFlyBaseWeapon::EquipmentServer_Validate(ASwordFlyCharacter* Player)
 
 void ASwordFlyBaseWeapon::EquipmentNetMulticast_Implementation(ASwordFlyCharacter* Player)
 {
-    if (GetLocalRole()==ROLE_Authority)
+    if (!thisOwner)return;
+    ASwordFlyPlayerState *PS=Cast<ASwordFlyPlayerState>(thisOwner->GetPlayerState());
+    USwordFlyInformationrComponent *info=Cast<USwordFlyInformationrComponent>(PS->InformationCompoent);
+    if (!PS||!info)return;
+    if (!info->CurrentWeaponArray.IsValidIndex(0))
     {
-        ASwordFlyCharacter *Character1=Cast<ASwordFlyCharacter>(GetWorld()->GetFirstPlayerController()->GetCharacter());
-        if (!Character1)return;
+        info->CurrentWeaponArray.Insert(this,0);
+        info->CurrentWeapon=this;
         
-        thisOwner=Character1;
-    
-        Collision_Attack->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-        Collision_Attack->SetCollisionResponseToAllChannels(ECR_Ignore);
-        Collision_Attack->SetSimulatePhysics(false);
-    
-        Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
         Mesh->SetSimulatePhysics(false);
-    
-        this->AttachToComponent(thisOwner->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, this->AttachLocation);
+        Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+        Collision_Pack->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+        this->AttachToComponent(thisOwner->GetMesh(),FAttachmentTransformRules::SnapToTargetNotIncludingScale,AttachLocation);
+        //thisOwner->SetCurrentWeapon(this);
+        thisOwner->Equipment(this);
+    }else if (info->CurrentWeaponArray.IsValidIndex(0)&&info->CurrentWeaponArray[0]->GetWeaponType()!=this->GetWeaponType())
+    {
+        info->CurrentWeaponArray.Insert(this,1);
 
-        this->SetActorHiddenInGame(false);
-        //PS->SetCurrentWeapon(this);
-        thisOwner->SetCurrentWeapon(this);
+        Mesh->SetSimulatePhysics(false);
+        Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+        Collision_Pack->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+        this->AttachToComponent(thisOwner->GetMesh(),FAttachmentTransformRules::SnapToTargetNotIncludingScale,AttachBackLocation);
+    }else
+    {
+        /*this->SetActorHiddenInGame(true);
+        for(auto&thisItmeArray:info->PackItmeArray)
+        {
+            if(thisItmeArray.thisItem->ItemName==this->ItemName)
+            {
+                thisItmeArray.thisItemnumber=thisItmeArray.thisItemnumber+1;
+                return;
+            }
+        }
+        FPackItme newItme;
+        newItme.thisItem=this;
+        newItme.thisItemnumber=1;
+        info->PackItmeArray.Add(newItme);
+        return;*/
     }
+  
     
 }
 
 void ASwordFlyBaseWeapon::UnEquipment(class ASwordFlyCharacter* Player)
 {
+    UnEquipmentServer(Player);
+}
+
+void ASwordFlyBaseWeapon::Pack(ASwordFlyCharacter* theOwner)
+{
+    if (!theOwner)return;
+  
+    ASwordFlyPlayerState *PS=Cast<ASwordFlyPlayerState>(theOwner->GetPlayerState());
+    USwordFlyInformationrComponent *info=Cast<USwordFlyInformationrComponent>(PS->InformationCompoent);
+    if (!PS||!info)return;
+    if (!info->CurrentWeaponArray.IsValidIndex(0))
+    {
+        Equipment(thisOwner);
+        return;
+    }
+    if (!info->CurrentWeaponArray.IsValidIndex(1))
+    {
+        Equipment(thisOwner);
+        return;
+    }
+    /*this->SetActorHiddenInGame(true);
+    for(auto&thisItmeArray:info->PackItmeArray)
+    {
+        if(thisItmeArray.thisItem->ItemName==this->ItemName)
+        {
+            thisItmeArray.thisItemnumber=thisItmeArray.thisItemnumber+1;
+            return;
+        }
+    }
+    FPackItme newItme;
+    newItme.thisItem=this;
+    newItme.thisItemnumber=1;
+    info->PackItmeArray.Add(newItme);
+    return;*/
+}
+
+void ASwordFlyBaseWeapon::UnEquipmentNetMulticast_Implementation(ASwordFlyCharacter* Player)
+{
     if (thisOwner)
     {
-        //ASwordFlyPlayerState thisPS=Cast<ASwordFlyPlayerState>(thisOwner->GetPlayerState());
-        thisOwner->SetCharacterState(ECharacterState::ENone);
-        //PS->CurrentWeapon=nullptr;
+        //thisOwner->UnEquipment();
         this->AfterThroud(thisOwner);
     }
+}
+
+void ASwordFlyBaseWeapon::UnEquipmentServer_Implementation(ASwordFlyCharacter* Player)
+{
+    UnEquipmentNetMulticast(Player);
+}
+
+bool ASwordFlyBaseWeapon::UnEquipmentServer_Validate(ASwordFlyCharacter* Player)
+{
+    return true;
 }

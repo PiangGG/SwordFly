@@ -41,6 +41,7 @@ public:
 	FName Socket_Left="Socket_Left_FString";
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly)
 	FName Socket_Back="Socket_Back_FString";
+	
 	/*
 	 * Component
 	 */
@@ -76,7 +77,6 @@ public:
 	class ABaseItem * GetCurrentWeapon();
 	void SetCurrentWeapon(class ABaseItem* Weapon);
 	
-	class BaseItem * LastWeapon;
 	
 	//拾取物品
 	UFUNCTION(BlueprintCallable)
@@ -96,9 +96,21 @@ public:
     void SweapWeapon(class ASwordFlyBaseWeapon* newWeapon);
 	
 	UFUNCTION(BlueprintCallable)
-		void Attack();
+	void Attack();
+	UFUNCTION(Server,WithValidation,Reliable)
+    void AttackServer();
+	UFUNCTION(NetMulticast,Reliable)
+    void AttackNetMulticast();
 
 	//被伤害
 	UFUNCTION(BlueprintCallable)
 	void ReceiveDamage(float var);
+	UFUNCTION(BlueprintCallable)
+	void Death();
+
+	UFUNCTION(BlueprintCallable,Server,WithValidation,Reliable)
+    void DeathServer();
+
+	UFUNCTION(BlueprintCallable,Reliable,NetMulticast)
+    void DeathNetMulticast();
 };

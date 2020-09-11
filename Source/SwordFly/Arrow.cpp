@@ -24,6 +24,7 @@ AArrow::AArrow()
     
     DamageVar=20.f;
     ActorID=4;
+    TimeLive=10.f;
 }
 
 void AArrow::Collision_Pack_BeginOverlap(UPrimitiveComponent* Component, AActor* OtherActor,
@@ -49,5 +50,15 @@ void AArrow::BeginPlay()
     Super::BeginPlay();
     Collision_Attack->OnComponentHit.AddDynamic(this,&AArrow::OnHitActor);
 
+}
+
+void AArrow::Tick(float DeltaSeconds)
+{
+    Super::Tick(DeltaSeconds);
+    TimeLive-=DeltaSeconds;
+    if (TimeLive<=0.f)
+    {
+        this->Destroy();
+    }
 }
 

@@ -81,8 +81,9 @@ void ABaseItem::Collision_Pack_BeginOverlapNetMulticast_Implementation(UPrimitiv
 {
 	if (thisOwner != nullptr)return;
 
-	ASwordFlyCharacter* Player = Cast<ASwordFlyCharacter>(OtherActor);
+	/*ASwordFlyCharacter* Player = Cast<ASwordFlyCharacter>(OtherActor);
 
+	
 	if (Player)
 	{
 		Collision_Pack->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -91,13 +92,8 @@ void ABaseItem::Collision_Pack_BeginOverlapNetMulticast_Implementation(UPrimitiv
 		Mesh->SetSimulatePhysics(false);
 		Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		thisOwner = Player;
-		ASwordFlyPlayerState *PS=Cast<ASwordFlyPlayerState>(Player->GetPlayerState());
-		
-		USwordFlyInformationrComponent *infor=Cast<USwordFlyInformationrComponent>(PS->InformationCompoent);
-		UE_LOG(LogTemp, Warning, TEXT("Collision_Pack_BeginOverlapNetMulticast_Implementation"));
-		infor->Putbackpack(this,1);
-		//Player->PackUp(this);
-	}
+		Pack(thisOwner);
+	}*/
 }
 
 void ABaseItem::Collision_Pack_BeginOverlap(UPrimitiveComponent* Component,AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
@@ -110,6 +106,27 @@ void ABaseItem::Collision_Pack_BeginOverlap(UPrimitiveComponent* Component,AActo
 void ABaseItem::AfterThroud(class ASwordFlyCharacter* theOwner)
 {
 	AfterThroudServer(theOwner);
+}
+
+void ABaseItem::Pack(ASwordFlyCharacter* theOwner)
+{
+	PackServer(theOwner);
+}
+
+void ABaseItem::PackNetMulticast_Implementation(ASwordFlyCharacter* theOwner)
+{
+	if (!theOwner)return;
+	
+}
+
+void ABaseItem::PackServer_Implementation(ASwordFlyCharacter* theOwner)
+{
+	PackNetMulticast(theOwner);
+}
+
+bool ABaseItem::PackServer_Validate(ASwordFlyCharacter* theOwner)
+{
+	return true;
 }
 
 void ABaseItem::AfterThroudServer_Implementation(ASwordFlyCharacter* theOwner)
@@ -133,7 +150,7 @@ void ABaseItem::AfterThroudNetMulticast_Implementation(ASwordFlyCharacter* theOw
 	Collision_Pack->SetCollisionResponseToChannels(ECR_Ignore);
 	Collision_Pack->SetCollisionResponseToChannel(ECC_EngineTraceChannel1, ECR_Overlap);
 	Collision_Pack->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
-	
+	this->SetActorHiddenInGame(false);
 	thisOwner = nullptr;
 }
 

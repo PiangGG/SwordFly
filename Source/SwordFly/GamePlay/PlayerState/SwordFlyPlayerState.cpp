@@ -3,6 +3,7 @@
 
 #include "SwordFlyPlayerState.h"
 #include "Net/UnrealNetwork.h"
+#include "SwordFly/GamePlay/Character/SwordFlyCharacter.h"
 #include "SwordFly/Component/SwordFlyInformationrComponent.h"
 #include "SwordFly/Itme/Weapons/SwordFlyBaseWeapon.h"
 
@@ -19,36 +20,17 @@ ASwordFlyPlayerState::ASwordFlyPlayerState()
 
 void ASwordFlyPlayerState::SetCurrentWeapon(ASwordFlyBaseWeapon* NewWeapon)
 {
+    
 }
 
 void ASwordFlyPlayerState::SweapWeapon(ASwordFlyBaseWeapon* newWeapon)
 {
-    /*if (CurrentWeapon)
-    {
-        UE_LOG(LogTemp, Warning, TEXT("SweapWeapon"));
-        ASwordFlyPlayerState *PS=Cast<ASwordFlyPlayerState>( this);
-	
-        CurrentWeapon->SetActorHiddenInGame(true);
-        for (auto& thisItmeArray:PS->InformationCompoent->ItmeArray)
-        {
-            if (thisItmeArray.thisItem->ItemName==CurrentWeapon->ItemName)
-            {
-                thisItmeArray.thisItemnumber=thisItmeArray.thisItemnumber+1;
-                return;
-            }
-		
-        }
-        CurrentWeapon=nullptr;
-        Equipment(newWeapon);
-    }*/
+    
 }
 
 void ASwordFlyPlayerState::PackUp(ABaseItem* Itme)
 {
-    if (InformationCompoent)
-    {
-        InformationCompoent->Putbackpack(Itme,1);
-    }
+   
 }
 
 void ASwordFlyPlayerState::CollectHeart(float var)
@@ -62,6 +44,18 @@ void ASwordFlyPlayerState::ReceiveDamage(float var)
     UE_LOG(LogTemp, Warning, TEXT("ReceiveDamagePlayerState"));
     CurrentHealth -= var;
     CurrentHealth = FMath::Clamp(CurrentHealth, 0.f, MaxHealth);
+    if (CurrentHealth<=0)
+    {
+        ASwordFlyCharacter *Player=Cast<ASwordFlyCharacter>(GetWorld()->GetFirstPlayerController()->GetCharacter());
+        if (Player)
+        {
+            Player->Death();
+            if (GetWorld()->GetFirstPlayerController())
+            {
+                GetWorld()->GetFirstLocalPlayerFromController()->GetPlayerController(GetWorld())->UnPossess();
+            }
+        }
+    }
 }
 
 void ASwordFlyPlayerState::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const
@@ -76,19 +70,11 @@ void ASwordFlyPlayerState::GetLifetimeReplicatedProps(TArray< FLifetimeProperty 
 }
 void ASwordFlyPlayerState::Equipment(ASwordFlyBaseWeapon* Itme)
 {
-    if (InformationCompoent)
-    {
-        UE_LOG(LogTemp, Warning, TEXT("ASwordFlyPlayerState::Equipment"));
-        InformationCompoent->Equipment(Itme);
-    }
+    
 }
 
 void ASwordFlyPlayerState::UnEquipment()
 {
-    
-    if (InformationCompoent)
-    {
-        InformationCompoent->UnEquipmen(InformationCompoent->CurrentWeapon,1);
-    }
+  
     
 }
