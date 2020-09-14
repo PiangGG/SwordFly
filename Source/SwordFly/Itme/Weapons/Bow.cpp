@@ -24,6 +24,7 @@ ABow::ABow()
 
 void ABow::Attack()
 {
+    UE_LOG(LogTemp, Warning, TEXT("attack2"));
     AttackServer();
 }
 
@@ -34,8 +35,9 @@ void ABow::AttackServer()
 
 void ABow::AttackNetMulticast()
 {
+    UE_LOG(LogTemp, Warning, TEXT("attack3"));
     if (thisOwner == nullptr)return;
-    
+    UE_LOG(LogTemp, Warning, TEXT("attack4"));
     UAnimInstance* PlayerAnimation = thisOwner->GetMesh()->GetAnimInstance();
     if (PlayerAnimation)
     {
@@ -56,8 +58,8 @@ void ABow::BeginPlay()
 
 void ABow::Shoot()
 {
-    if (GetLocalRole()!=ROLE_Authority)return;
-   
+    //if (GetLocalRole()!=ROLE_Authority)return;
+    UE_LOG(LogTemp, Warning, TEXT("attack"));
     UWorld* World=GetWorld();
     if (World)
     {

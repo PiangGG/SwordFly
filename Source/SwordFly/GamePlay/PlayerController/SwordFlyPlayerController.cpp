@@ -30,8 +30,8 @@ void ASwordFlyPlayerController::SetupInputComponent()
     InputComponent->BindAction("ShowPlayerScreen", EInputEvent::IE_Pressed, this, &ASwordFlyPlayerController::ShowPlayerList);
     InputComponent->BindAction("ShowPlayerScreen", EInputEvent::IE_Released, this, &ASwordFlyPlayerController::HidePlayerList);
     InputComponent->BindAction("Inventory", EInputEvent::IE_Pressed, this, &ASwordFlyPlayerController::Inventory);
-    InputComponent->BindAction("Run", EInputEvent::IE_Pressed, this, &ASwordFlyPlayerController::Run);
-    InputComponent->BindAction("Run", EInputEvent::IE_Released, this, &ASwordFlyPlayerController::Run);
+    //InputComponent->BindAction("Run", EInputEvent::IE_Pressed, this, &ASwordFlyPlayerController::Run);
+    //InputComponent->BindAction("Run", EInputEvent::IE_Released, this, &ASwordFlyPlayerController::Run);
 }
 
 void ASwordFlyPlayerController::Tick(float DeltaTime)
@@ -179,6 +179,7 @@ void ASwordFlyPlayerController::Run()
 
 void ASwordFlyPlayerController::RunNetMulticast_Implementation()
 {
+    //if (!this->IsLocalController())return;
     if (isRuning) {
         isRuning = false;
         GetCharacter()->GetCharacterMovement()->MaxWalkSpeed = 300.f;

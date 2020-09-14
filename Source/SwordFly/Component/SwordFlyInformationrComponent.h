@@ -35,13 +35,13 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,Replicated)
 	TArray<FPackItme> PackItmeArray;
 	
-	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,Replicated)
 	TArray<class ASwordFlyBaseWeapon*> CurrentWeaponArray;
 
-	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,Replicated)
 	ASwordFlyBaseWeapon* CurrentWeapon;
 	//穿戴装备
 	UFUNCTION(BlueprintCallable)

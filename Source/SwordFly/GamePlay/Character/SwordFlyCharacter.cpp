@@ -28,12 +28,16 @@ ASwordFlyCharacter::ASwordFlyCharacter()
 	SpringArmComp=CreateDefaultSubobject<USpringArmComponent>(FName("springcomp"));
 	SpringArmComp->bUsePawnControlRotation = false;
 	SpringArmComp->TargetArmLength = 700.f;
+	SpringArmComp->SetIsReplicated(true);
 	SpringArmComp->SetupAttachment(RootComponent);
+	SpringArmComp->SetIsReplicated(true);
 	
 	TiredCamera=CreateDefaultSubobject<UCameraComponent>(FName("Camera"));
 	TiredCamera->FieldOfView = 110.f;
+	TiredCamera->SetIsReplicated(true);
 	TiredCamera->SetupAttachment(SpringArmComp);
-
+	TiredCamera->SetIsReplicated(true);
+	
 	bAlwaysRelevant = true;
 	bReplayRewindable=true;
 	SetReplicates(true);
@@ -43,21 +47,26 @@ ASwordFlyCharacter::ASwordFlyCharacter()
 	bUseControllerRotationRoll = false;
 	bUseControllerRotationYaw = false;
 	
-
+	GetMesh()->SetIsReplicated(true);
+	
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->JumpZVelocity = 1000.f;
 	GetCharacterMovement()->GravityScale = 2.f;
 	GetCharacterMovement()->AirControl = 0.8f;
 	GetCharacterMovement()->MaxWalkSpeed= 300.f;
-	GetCharacterMovement()->SetIsReplicated(true);
+	
+	//GetCharacterMovement()->SetIsReplicated(true);
+	//GetCharacterMovement()->movem
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_EngineTraceChannel1,ECR_Overlap);
    
+	isRuning=false;
 }
 
 void ASwordFlyCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	ASwordFlyPlayerState *PS=Cast<ASwordFlyPlayerState>(GetPlayerState());
+	
 	if (PS)
 	{
 		GetCharacterMovement()->MaxWalkSpeed = PS->PlayerSpeed;
@@ -95,16 +104,19 @@ void ASwordFlyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 
 	PlayerInputComponent->BindAction("Attack",EInputEvent::IE_Pressed,this,&ASwordFlyCharacter::Attack);
 	PlayerInputComponent->BindAction("Attack",EInputEvent::IE_Released,this,&ASwordFlyCharacter::Attack);
+
+	InputComponent->BindAction("Run", EInputEvent::IE_Pressed, this, &ASwordFlyCharacter::Run);
+	InputComponent->BindAction("Run", EInputEvent::IE_Released, this, &ASwordFlyCharacter::Run);
 	
 }
 
 void ASwordFlyCharacter::MoveForward(float amount)
 {
 	ASwordFlyPlayerController *PC = Cast<ASwordFlyPlayerController>(GetWorld()->GetFirstPlayerController());
+	
+	if (!PC/* && PC->bPauseMenuDisplayed*/) return;
 
-	if (PC && PC->bPauseMenuDisplayed) return;
-
-	if (amount) {
+	if (PC->IsLocalController() && amount) {
 		
 		AddMovementInput(TiredCamera->GetForwardVector(),amount);
 	}
@@ -113,10 +125,11 @@ void ASwordFlyCharacter::MoveForward(float amount)
 
 void ASwordFlyCharacter::MoveRight(float amount)
 {
+	
+
 	ASwordFlyPlayerController *PC = Cast<ASwordFlyPlayerController>(GetWorld()->GetFirstPlayerController());
 
-	if (PC && PC->bPauseMenuDisplayed) return;
-
+	if (!PC/* && PC->bPauseMenuDisplayed*/) return;
 	
 	if (PC->IsLocalController() && amount) {
 		
@@ -127,9 +140,11 @@ void ASwordFlyCharacter::MoveRight(float amount)
 
 void ASwordFlyCharacter::RotateCamera(float amount)
 {
+	
+	
 	ASwordFlyPlayerController *PC = Cast<ASwordFlyPlayerController>(GetWorld()->GetFirstPlayerController());
 
-	if (PC && PC->bPauseMenuDisplayed) return;
+	if (!PC/* && PC->bPauseMenuDisplayed*/) return;
 
 	
 	if (PC->IsLocalController() && amount) {
@@ -141,9 +156,11 @@ void ASwordFlyCharacter::RotateCamera(float amount)
 
 void ASwordFlyCharacter::ChangeCameraHeight(float amount)
 {
+	
+	
 	ASwordFlyPlayerController *PC = Cast<ASwordFlyPlayerController>(GetWorld()->GetFirstPlayerController());
 
-	if (PC && PC->bPauseMenuDisplayed) return;
+	if (!PC/* && PC->bPauseMenuDisplayed*/) return;
 
 	
 	if (PC->IsLocalController() && amount) {
@@ -179,7 +196,7 @@ void ASwordFlyCharacter::SetCharacterState(ECharacterState newState)
 
 ABaseItem* ASwordFlyCharacter::GetCurrentWeapon()
 {
-	//if (GetLocalRole()!=ROLE_Authority) return nullptr;
+	
 	ASwordFlyPlayerState* PS=Cast<ASwordFlyPlayerState>(GetPlayerState());
 	if (PS)
 	{
@@ -191,7 +208,6 @@ ABaseItem* ASwordFlyCharacter::GetCurrentWeapon()
 
 void ASwordFlyCharacter::SetCurrentWeapon(ABaseItem* Weapon)
 {
-	//if (GetLocalRole()!=ROLE_Authority)return;
 	
 	ASwordFlyPlayerState* PS=Cast<ASwordFlyPlayerState>(GetPlayerState());
 	
@@ -233,6 +249,8 @@ void ASwordFlyCharacter::Equipment(ASwordFlyBaseWeapon* Itme)
 
 void ASwordFlyCharacter::UnEquipment()
 {
+	//if (GetLocalRole()!=ROLE_Authority)return;
+	if (!GetController()->IsLocalController())return;
 	ASwordFlyPlayerState* PS=Cast<ASwordFlyPlayerState>(GetPlayerState());
 	USwordFlyInformationrComponent *Info=Cast<USwordFlyInformationrComponent>(PS->InformationCompoent);
 	if (!PS||!Info)return;
@@ -290,11 +308,16 @@ bool ASwordFlyCharacter::AttackServer_Validate()
 
 void ASwordFlyCharacter::AttackNetMulticast_Implementation()
 {
+	//if (!GetController()->IsLocalController())return;
 	ASwordFlyPlayerState* PS=Cast<ASwordFlyPlayerState>(GetPlayerState());
+	if (!PS)return;
+	
 	USwordFlyInformationrComponent *info=Cast<USwordFlyInformationrComponent>(PS->InformationCompoent);
-	if (info->CurrentWeapon)
+	//if (GetLocalRole()!=ROLE_Authority)return;
+	if (PS->InformationCompoent->CurrentWeapon)
 	{
-		info->CurrentWeapon->Attack();
+		UE_LOG(LogTemp, Warning, TEXT("attack"));
+		PS->InformationCompoent->CurrentWeapon->Attack();
 	}
 }
 
@@ -302,6 +325,8 @@ void ASwordFlyCharacter::ReceiveDamage(float var)
 {
 	
 	if (GetLocalRole()!=ROLE_Authority)return;
+	if (!GetController()->IsLocalController())return;
+	
 	ASwordFlyPlayerState* PS=Cast<ASwordFlyPlayerState>(GetPlayerState());
 	if (PS)
 	{
@@ -314,10 +339,43 @@ void ASwordFlyCharacter::Death()
 	DeathServer();
 }
 
+void ASwordFlyCharacter::Run()
+{
+	RunServer();
+}
+
+void ASwordFlyCharacter::RunServer_Implementation()
+{
+	RunNetMulticast();
+}
+
+bool ASwordFlyCharacter::RunServer_Validate()
+{
+	return true;
+}
+
+void ASwordFlyCharacter::RunNetMulticast_Implementation()
+{
+	if (GetController())
+	{
+		if (isRuning) {
+			isRuning = false;
+			this->GetCharacterMovement()->MaxWalkSpeed = 300.f;
+		}
+		else
+		{
+			isRuning = true;
+			this->GetCharacterMovement()->MaxWalkSpeed = 600.f;
+		}
+	}
+
+}
+
 void ASwordFlyCharacter::DeathNetMulticast_Implementation()
 {
-	GetMesh()->SetSimulatePhysics(true);
-	
+	if (GetLocalRole()!=ROLE_Authority)return;
+	if (!GetController()->IsLocalController())return;
+	GetMesh()->SetSimulatePhysics(true);	
 }
 
 void ASwordFlyCharacter::DeathServer_Implementation()

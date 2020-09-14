@@ -49,12 +49,10 @@ void USwordFlyGameInstance::ChangeState(EGameState newState)
 {
     //if (CurrentState==nullptr)return;
     
-    /*if (CurrentState != newState) {
+    if (CurrentState != newState) {
         LeaveState();
         EnterState(newState);
-    }*/
-    LeaveState();
-    EnterState(newState);
+    }
 }
 
 EGameState USwordFlyGameInstance::GetGameState()
@@ -64,6 +62,8 @@ EGameState USwordFlyGameInstance::GetGameState()
 
 void USwordFlyGameInstance::SetInputMode(EInputMode newInputMode, bool bShowMouseCursor)
 {
+    if (!GetWorld()->GetFirstPlayerController())return;
+   
     switch (newInputMode) {
     case EInputMode::EUIOnly: {
             GetWorld()->GetFirstPlayerController()->SetInputMode(FInputModeUIOnly());
@@ -84,6 +84,7 @@ void USwordFlyGameInstance::SetInputMode(EInputMode newInputMode, bool bShowMous
     GetFirstLocalPlayerController()->bShowMouseCursor=bShowMouseCursor;
     //retain the values for further use
     CurrentInputMode = newInputMode;
+ 
     bIsShowingMouseCursor = bShowMouseCursor;
 }
 
@@ -479,13 +480,15 @@ void USwordFlyGameInstance::EnterState(EGameState newState)
 {
   
 	CurrentState = newState;
-
+    
 	switch (CurrentState) {
 	case EGameState::ELoadingScreen: {
 		
 		CurrentWidget = CreateWidget<UUserWidget>(GetWorld()->GetFirstPlayerController(), cLoadingScreen);
-		
-		CurrentWidget->AddToViewport();
+
+	    if (!CurrentWidget)return;
+
+	    CurrentWidget->AddToViewport();
 
 		SetInputMode(EInputMode::EUIOnly, true);
 		break;
@@ -493,16 +496,18 @@ void USwordFlyGameInstance::EnterState(EGameState newState)
 	case EGameState::EMainMenu: {
 		
 		CurrentWidget = CreateWidget<UUserWidget>(GetWorld()->GetFirstPlayerController(), cMainMenu);
-		
-		CurrentWidget->AddToViewport();
-	        
+
+        if (!CurrentWidget)return;
+       
+        CurrentWidget->AddToViewport();
+           
 		SetInputMode(EInputMode::EUIOnly, true);
 		break;
 	}
 	case EGameState::EMultiplayerHome: {
 	
 		CurrentWidget = CreateWidget<UUserWidget>(GetWorld()->GetFirstPlayerController(), cMPHome);
-	
+	    if (!CurrentWidget)return;
 		CurrentWidget->AddToViewport();
 
 		SetInputMode(EInputMode::EUIOnly, true);
@@ -511,7 +516,7 @@ void USwordFlyGameInstance::EnterState(EGameState newState)
 	case EGameState::EMultiplayerJoin: {
 
 		CurrentWidget = CreateWidget<UUserWidget>(GetWorld()->GetFirstPlayerController(), cMPJoin);
-
+	    if (!CurrentWidget)return;
 		CurrentWidget->AddToViewport();
 	        
 		SetInputMode(EInputMode::EUIOnly, true);
@@ -520,7 +525,7 @@ void USwordFlyGameInstance::EnterState(EGameState newState)
 	case EGameState::EMultiplayerHost: {
 		
 		CurrentWidget = CreateWidget<UUserWidget>(GetWorld()->GetFirstPlayerController(), cMPHost);
-		
+	    if (!CurrentWidget)return;
 		CurrentWidget->AddToViewport();
 
 		SetInputMode(EInputMode::EUIOnly, true);

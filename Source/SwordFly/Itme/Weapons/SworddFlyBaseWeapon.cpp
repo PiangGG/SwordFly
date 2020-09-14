@@ -65,8 +65,8 @@ bool ASwordFlyBaseWeapon::AttackServer_Validate()
 
 void ASwordFlyBaseWeapon::AttackNetMulticast_Implementation()
 {
+    UE_LOG(LogTemp, Warning, TEXT("attack"));
     //if (GetLocalRole()=ROLE_Authority)return;
-    
     if (thisOwner == nullptr)return;
     
     UAnimInstance* PlayerAnimation = thisOwner->GetMesh()->GetAnimInstance();
@@ -75,7 +75,7 @@ void ASwordFlyBaseWeapon::AttackNetMulticast_Implementation()
         if (AttackAnimMontage&&PlayerAnimation->IsAnyMontagePlaying()==false)
             {
                 PlayerAnimation->Montage_Play(AttackAnimMontage);
-         
+           
             }
            
     }
@@ -84,7 +84,7 @@ void ASwordFlyBaseWeapon::AttackNetMulticast_Implementation()
 
 void ASwordFlyBaseWeapon::Collision_Pack_BeginOverlap(UPrimitiveComponent* Component, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-    if (GetLocalRole()!=ROLE_Authority)return;
+    //if (GetLocalRole()!=ROLE_Authority)return;
     Super::Collision_Pack_BeginOverlap(Component, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult);
     ASwordFlyCharacter* Player = Cast<ASwordFlyCharacter>(OtherActor);
     thisOwner=Player;
@@ -129,11 +129,12 @@ void ASwordFlyBaseWeapon::EquipmentNetMulticast_Implementation(ASwordFlyCharacte
     if (!thisOwner)return;
     ASwordFlyPlayerState *PS=Cast<ASwordFlyPlayerState>(thisOwner->GetPlayerState());
     USwordFlyInformationrComponent *info=Cast<USwordFlyInformationrComponent>(PS->InformationCompoent);
+    //if (!thisOwner->GetController()->IsLocalController())return;
+
     if (!PS||!info)return;
     if (!info->CurrentWeaponArray.IsValidIndex(0))
     {
-        info->CurrentWeaponArray.Insert(this,0);
-        info->CurrentWeapon=this;
+        PS->Equipment(this);
         
         Mesh->SetSimulatePhysics(false);
         Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -143,7 +144,7 @@ void ASwordFlyBaseWeapon::EquipmentNetMulticast_Implementation(ASwordFlyCharacte
         thisOwner->Equipment(this);
     }else if (info->CurrentWeaponArray.IsValidIndex(0)&&info->CurrentWeaponArray[0]->GetWeaponType()!=this->GetWeaponType())
     {
-        info->CurrentWeaponArray.Insert(this,1);
+        PS->Equipment(this);
 
         Mesh->SetSimulatePhysics(false);
         Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);

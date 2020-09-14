@@ -107,10 +107,16 @@ public:
 	void ReceiveDamage(float var);
 	UFUNCTION(BlueprintCallable)
 	void Death();
-
 	UFUNCTION(BlueprintCallable,Server,WithValidation,Reliable)
     void DeathServer();
-
 	UFUNCTION(BlueprintCallable,Reliable,NetMulticast)
     void DeathNetMulticast();
+	//角色跑
+	bool isRuning;
+	UFUNCTION()
+    void Run();
+	UFUNCTION(Server, WithValidation, Reliable)
+    void RunServer();
+	UFUNCTION(NetMulticast, Reliable)
+    void RunNetMulticast();
 };

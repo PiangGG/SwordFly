@@ -2,6 +2,8 @@
 
 
 #include "SwordFlyInformationrComponent.h"
+
+#include "Net/UnrealNetwork.h"
 #include "SwordFly/Itme/Weapons/Sword.h"
 #include "SwordFly/Itme/Weapons/SwordFlyBaseWeapon.h"
 #include "SwordFly/GamePlay/Character/SwordFlyCharacter.h"
@@ -14,7 +16,15 @@ USwordFlyInformationrComponent::USwordFlyInformationrComponent()
 
 	// ...
 }
+void USwordFlyInformationrComponent::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
+	DOREPLIFETIME(USwordFlyInformationrComponent, PackItmeArray);
+	DOREPLIFETIME(USwordFlyInformationrComponent, CurrentWeaponArray);
+	DOREPLIFETIME(USwordFlyInformationrComponent, CurrentWeapon);
+	
+}
 
 // Called when the game starts
 void USwordFlyInformationrComponent::BeginPlay()

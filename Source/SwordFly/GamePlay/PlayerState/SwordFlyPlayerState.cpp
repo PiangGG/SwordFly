@@ -67,10 +67,40 @@ void ASwordFlyPlayerState::GetLifetimeReplicatedProps(TArray< FLifetimeProperty 
     DOREPLIFETIME(ASwordFlyPlayerState, MaxHealth);
     DOREPLIFETIME(ASwordFlyPlayerState, CurrentVitality);
     DOREPLIFETIME(ASwordFlyPlayerState, MaxVitality);
+   
 }
 void ASwordFlyPlayerState::Equipment(ASwordFlyBaseWeapon* Itme)
 {
-    
+   
+    if(!GetWorld()->GetFirstPlayerController()->IsLocalController())return;
+    //if (GetLocalRole()!=ROLE_Authority)return;
+ 
+    if (!InformationCompoent->CurrentWeaponArray.IsValidIndex(0))
+    {
+        InformationCompoent->CurrentWeaponArray.Insert(Itme,0);
+        InformationCompoent->CurrentWeapon=Itme;
+        
+    }else if (InformationCompoent->CurrentWeaponArray.IsValidIndex(0)&&InformationCompoent->CurrentWeaponArray[0]->GetWeaponType()!=Itme->GetWeaponType())
+    {
+        InformationCompoent->CurrentWeaponArray.Insert(Itme,1);
+
+         }else
+    {
+        /*this->SetActorHiddenInGame(true);
+        for(auto&thisItmeArray:info->PackItmeArray)
+        {
+        if(thisItmeArray.thisItem->ItemName==this->ItemName)
+        {
+        thisItmeArray.thisItemnumber=thisItmeArray.thisItemnumber+1;
+        return;
+        }
+        }
+        FPackItme newItme;
+        newItme.thisItem=this;
+        newItme.thisItemnumber=1;
+        info->PackItmeArray.Add(newItme);
+        return;*/
+    }
 }
 
 void ASwordFlyPlayerState::UnEquipment()

@@ -19,7 +19,7 @@ ASword::ASword()
     ActorID=2;
 }
 
-void ASword::Attack()
+/*void ASword::Attack()
 {
     AttackServer();
 }
@@ -27,7 +27,7 @@ void ASword::Attack()
 void ASword::AttackServer()
 {
     AttackNetMulticast();
-}
+}*/
 
 void ASword::AttackNetMulticast()
 {
