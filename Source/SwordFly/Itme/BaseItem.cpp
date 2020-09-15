@@ -105,7 +105,18 @@ void ABaseItem::Collision_Pack_BeginOverlap(UPrimitiveComponent* Component,AActo
 
 void ABaseItem::AfterThroud(class ASwordFlyCharacter* theOwner)
 {
-	AfterThroudServer(theOwner);
+	GetWorldTimerManager().SetTimer(MemberTimerHandle, this, &ABaseItem::ReSetPackupFTimerHndle, 1.0f, true, 5.0f);
+	Mesh->SetSimulatePhysics(true);
+	this->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+	Mesh->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
+	Mesh->SetCollisionResponseToChannels(ECR_Block);
+	
+	Collision_Pack->SetCollisionResponseToChannels(ECR_Ignore);
+	Collision_Pack->SetCollisionResponseToChannel(ECC_EngineTraceChannel1, ECR_Overlap);
+	Collision_Pack->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
+	this->SetActorHiddenInGame(false);
+	thisOwner = nullptr;
+	//AfterThroudServer(theOwner);
 }
 
 void ABaseItem::Pack(ASwordFlyCharacter* theOwner)
@@ -141,6 +152,7 @@ bool ABaseItem::AfterThroudServer_Validate(ASwordFlyCharacter* theOwner)
 
 void ABaseItem::AfterThroudNetMulticast_Implementation(ASwordFlyCharacter* theOwner)
 {
+	UE_LOG(LogTemp, Warning, TEXT("UnEquipment9"));
 	GetWorldTimerManager().SetTimer(MemberTimerHandle, this, &ABaseItem::ReSetPackupFTimerHndle, 1.0f, true, 5.0f);
 	Mesh->SetSimulatePhysics(true);
 	this->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);

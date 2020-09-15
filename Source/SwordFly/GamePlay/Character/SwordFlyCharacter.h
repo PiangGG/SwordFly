@@ -90,6 +90,10 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void UnEquipment();
+	UFUNCTION(Server,WithValidation,Reliable)
+    void UnEquipmentServer();
+	UFUNCTION(NetMulticast,Reliable)
+    void UnEquipmentNetMulticast();
 	
 
 	UFUNCTION(BlueprintCallable)
@@ -120,3 +124,4 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
     void RunNetMulticast();
 };
+

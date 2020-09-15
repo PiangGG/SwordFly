@@ -35,10 +35,9 @@ void ABow::AttackServer()
 
 void ABow::AttackNetMulticast()
 {
-    UE_LOG(LogTemp, Warning, TEXT("attack3"));
-    if (thisOwner == nullptr)return;
-    UE_LOG(LogTemp, Warning, TEXT("attack4"));
+    if (thisOwner == nullptr||thisOwner->GetController()->IsLocalController())return;
     UAnimInstance* PlayerAnimation = thisOwner->GetMesh()->GetAnimInstance();
+   
     if (PlayerAnimation)
     {
         if (AttackAnimMontage&&PlayerAnimation->IsAnyMontagePlaying()==false) {

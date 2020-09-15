@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerState.h"
+#include "SwordFly/GamePlay/Character/SwordFlyCharacter.h"
+
 #include "SwordFlyPlayerState.generated.h"
 
 class ABaseItem;
@@ -32,11 +34,9 @@ public:
 	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly, Category = "Player State")
 	float MaxVitality;
 
-	/*UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly, Category = "Player State")
-	TArray<ASwordFlyBaseWeapon> *CurrentWeapon;
 	
-	UFUNCTION(BlueprintCallable)
-	TArray<ASwordFlyBaseWeapon>* GetCurrentWeapon();*/
+	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly, Category = "Player State")
+	TArray<class ASwordFlyBaseWeapon*> CurrentWeaponArray;
 	
 	UFUNCTION(BlueprintCallable)
 	void SetCurrentWeapon(class ASwordFlyBaseWeapon* NewWeapon);
@@ -48,10 +48,14 @@ public:
 	void PackUp(ABaseItem* Itme);
 	
 	UFUNCTION(BlueprintCallable)
-	void Equipment(ASwordFlyBaseWeapon* Itme);
+	void Equipment(ASwordFlyCharacter* Player, ASwordFlyBaseWeapon* Itme);
 	
 	UFUNCTION(BlueprintCallable)
 	void UnEquipment();
+	UFUNCTION(BlueprintCallable,Server,WithValidation,Reliable)
+    void UnEquipmentServer();
+	UFUNCTION(BlueprintCallable,NetMulticast,Reliable)
+    void UnEquipmentNetMulticast();
 public:
 	UFUNCTION(BlueprintCallable, Category = "Player State")
     void CollectHeart(float var);

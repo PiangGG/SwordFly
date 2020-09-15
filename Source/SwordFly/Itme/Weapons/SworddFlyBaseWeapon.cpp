@@ -65,9 +65,9 @@ bool ASwordFlyBaseWeapon::AttackServer_Validate()
 
 void ASwordFlyBaseWeapon::AttackNetMulticast_Implementation()
 {
-    UE_LOG(LogTemp, Warning, TEXT("attack"));
-    //if (GetLocalRole()=ROLE_Authority)return;
-    if (thisOwner == nullptr)return;
+    //UE_LOG(LogTemp, Warning, TEXT("attack"));
+    if (GetLocalRole()!=ROLE_Authority)return;
+    if (thisOwner == nullptr||!thisOwner->GetController()->IsLocalController())return;
     
     UAnimInstance* PlayerAnimation = thisOwner->GetMesh()->GetAnimInstance();
     if (PlayerAnimation)
@@ -127,99 +127,54 @@ bool ASwordFlyBaseWeapon::EquipmentServer_Validate(ASwordFlyCharacter* Player)
 void ASwordFlyBaseWeapon::EquipmentNetMulticast_Implementation(ASwordFlyCharacter* Player)
 {
     if (!thisOwner)return;
-    ASwordFlyPlayerState *PS=Cast<ASwordFlyPlayerState>(thisOwner->GetPlayerState());
-    USwordFlyInformationrComponent *info=Cast<USwordFlyInformationrComponent>(PS->InformationCompoent);
-    //if (!thisOwner->GetController()->IsLocalController())return;
-
-    if (!PS||!info)return;
-    if (!info->CurrentWeaponArray.IsValidIndex(0))
-    {
-        PS->Equipment(this);
-        
-        Mesh->SetSimulatePhysics(false);
-        Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-        Collision_Pack->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-        this->AttachToComponent(thisOwner->GetMesh(),FAttachmentTransformRules::SnapToTargetNotIncludingScale,AttachLocation);
-        //thisOwner->SetCurrentWeapon(this);
-        thisOwner->Equipment(this);
-    }else if (info->CurrentWeaponArray.IsValidIndex(0)&&info->CurrentWeaponArray[0]->GetWeaponType()!=this->GetWeaponType())
-    {
-        PS->Equipment(this);
-
-        Mesh->SetSimulatePhysics(false);
-        Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-        Collision_Pack->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-        this->AttachToComponent(thisOwner->GetMesh(),FAttachmentTransformRules::SnapToTargetNotIncludingScale,AttachBackLocation);
-    }else
-    {
-        /*this->SetActorHiddenInGame(true);
-        for(auto&thisItmeArray:info->PackItmeArray)
-        {
-            if(thisItmeArray.thisItem->ItemName==this->ItemName)
-            {
-                thisItmeArray.thisItemnumber=thisItmeArray.thisItemnumber+1;
-                return;
-            }
-        }
-        FPackItme newItme;
-        newItme.thisItem=this;
-        newItme.thisItemnumber=1;
-        info->PackItmeArray.Add(newItme);
-        return;*/
-    }
-  
-    
+   
+    thisOwner->Equipment(this);
 }
 
 void ASwordFlyBaseWeapon::UnEquipment(class ASwordFlyCharacter* Player)
 {
-    UnEquipmentServer(Player);
+    UE_LOG(LogTemp, Warning, TEXT("UnEquipment7"));
+   
+    //UnEquipmentServer(Player);
+    if (Player)
+    {
+        this->AfterThroud(thisOwner);
+    }
+    
 }
 
 void ASwordFlyBaseWeapon::Pack(ASwordFlyCharacter* theOwner)
 {
     if (!theOwner)return;
-  
     ASwordFlyPlayerState *PS=Cast<ASwordFlyPlayerState>(theOwner->GetPlayerState());
-    USwordFlyInformationrComponent *info=Cast<USwordFlyInformationrComponent>(PS->InformationCompoent);
-    if (!PS||!info)return;
-    if (!info->CurrentWeaponArray.IsValidIndex(0))
+    if (!PS)return;
+    UE_LOG(LogTemp, Warning, TEXT("Pack1"));
+    if (!PS->CurrentWeaponArray.IsValidIndex(0))
+    {
+        UE_LOG(LogTemp, Warning, TEXT("Pack1"));
+        Equipment(thisOwner);
+        return;
+    }
+    if (!PS->CurrentWeaponArray.IsValidIndex(1))
     {
         Equipment(thisOwner);
         return;
     }
-    if (!info->CurrentWeaponArray.IsValidIndex(1))
-    {
-        Equipment(thisOwner);
-        return;
-    }
-    /*this->SetActorHiddenInGame(true);
-    for(auto&thisItmeArray:info->PackItmeArray)
-    {
-        if(thisItmeArray.thisItem->ItemName==this->ItemName)
-        {
-            thisItmeArray.thisItemnumber=thisItmeArray.thisItemnumber+1;
-            return;
-        }
-    }
-    FPackItme newItme;
-    newItme.thisItem=this;
-    newItme.thisItemnumber=1;
-    info->PackItmeArray.Add(newItme);
-    return;*/
+  
 }
 
 void ASwordFlyBaseWeapon::UnEquipmentNetMulticast_Implementation(ASwordFlyCharacter* Player)
 {
+    UE_LOG(LogTemp, Warning, TEXT("UnEquipment6"));
     if (thisOwner)
     {
-        //thisOwner->UnEquipment();
         this->AfterThroud(thisOwner);
     }
 }
 
 void ASwordFlyBaseWeapon::UnEquipmentServer_Implementation(ASwordFlyCharacter* Player)
 {
+    UE_LOG(LogTemp, Warning, TEXT("UnEquipment5"));
     UnEquipmentNetMulticast(Player);
 }
 

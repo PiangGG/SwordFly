@@ -200,8 +200,7 @@ ABaseItem* ASwordFlyCharacter::GetCurrentWeapon()
 	ASwordFlyPlayerState* PS=Cast<ASwordFlyPlayerState>(GetPlayerState());
 	if (PS)
 	{
-		USwordFlyInformationrComponent *Info=Cast<USwordFlyInformationrComponent>(PS->InformationCompoent);
-		return Info->CurrentWeapon;
+		PS->CurrentWeaponArray[0];
 	}
 	return nullptr;
 }
@@ -213,13 +212,14 @@ void ASwordFlyCharacter::SetCurrentWeapon(ABaseItem* Weapon)
 	
 	ASwordFlyBaseWeapon* thisWeapon=Cast<ASwordFlyBaseWeapon>(Weapon);
 
-	USwordFlyInformationrComponent *Info=Cast<USwordFlyInformationrComponent>(PS->InformationCompoent);
-	if (!thisWeapon||!PS||!Info)return;
+	
+	if (!thisWeapon||!PS)return;
 	
 	switch (thisWeapon->GetWeaponType())
 	{
 		case EWeaponType::EBow:
 			{
+				
 				SetCharacterState(ECharacterState::EBow);
 				break;
 			}
@@ -244,35 +244,41 @@ void ASwordFlyCharacter::PackUp(ABaseItem* Itme)
 
 void ASwordFlyCharacter::Equipment(ASwordFlyBaseWeapon* Itme)
 {
-	SetCurrentWeapon(Itme);
+	
+	ASwordFlyPlayerState *PS=Cast<ASwordFlyPlayerState>(GetPlayerState());
+	if (!Itme||!PS)return;
+	PS->Equipment(this,Itme);
+	
 }
 
 void ASwordFlyCharacter::UnEquipment()
 {
 	//if (GetLocalRole()!=ROLE_Authority)return;
-	if (!GetController()->IsLocalController())return;
-	ASwordFlyPlayerState* PS=Cast<ASwordFlyPlayerState>(GetPlayerState());
-	USwordFlyInformationrComponent *Info=Cast<USwordFlyInformationrComponent>(PS->InformationCompoent);
-	if (!PS||!Info)return;
-	if (!Info->CurrentWeapon)return;
-	Info->CurrentWeapon->UnEquipment(this);
-	Info->CurrentWeapon->DetachFromActor(FDetachmentTransformRules::KeepRelativeTransform);
-	Info->CurrentWeaponArray.RemoveAt(0);
 	
-	if (Info->CurrentWeaponArray.IsValidIndex(0))
-	{
-		Info->CurrentWeapon=Info->CurrentWeaponArray[0];
-		Info->CurrentWeapon->Mesh->SetSimulatePhysics(false);
-		Info->CurrentWeapon->Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		Info->CurrentWeapon->Collision_Pack->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		Info->CurrentWeapon->AttachToComponent(GetMesh(),FAttachmentTransformRules::SnapToTargetNotIncludingScale,Info->CurrentWeapon->AttachLocation);
-		//thisOwner->SetCurrentWeapon(this);
-		this->Equipment(Info->CurrentWeapon);
-	}else
-	{
-		SetCharacterState(ECharacterState::ENone);
-		Info->CurrentWeapon=nullptr;
-	}
+	UnEquipmentServer();
+}
+
+void ASwordFlyCharacter::UnEquipmentServer_Implementation()
+{
+	UnEquipmentNetMulticast();
+}
+
+bool ASwordFlyCharacter::UnEquipmentServer_Validate()
+{
+	return true;
+}
+void ASwordFlyCharacter::UnEquipmentNetMulticast_Implementation()
+{
+	if (GetLocalRole()!=ROLE_Authority)return;
+	
+	ASwordFlyPlayerController *PC=Cast<ASwordFlyPlayerController>(GetController());
+	if (!PC||PC->IsLocalController())return;
+	
+	ASwordFlyPlayerState* PS=Cast<ASwordFlyPlayerState>(GetPlayerState());
+	if (!PS)return;
+	
+	if (!PS->CurrentWeaponArray.IsValidIndex(0))return;
+	PS->UnEquipment();
 }
 
 void ASwordFlyCharacter::SweapWeapon(ASwordFlyBaseWeapon* newWeapon)
@@ -308,18 +314,17 @@ bool ASwordFlyCharacter::AttackServer_Validate()
 
 void ASwordFlyCharacter::AttackNetMulticast_Implementation()
 {
-	//if (!GetController()->IsLocalController())return;
 	ASwordFlyPlayerState* PS=Cast<ASwordFlyPlayerState>(GetPlayerState());
-	if (!PS)return;
+	if (GetLocalRole()!=ROLE_Authority)return;
+	if (!GetController()->IsLocalController())return;
 	
-	USwordFlyInformationrComponent *info=Cast<USwordFlyInformationrComponent>(PS->InformationCompoent);
-	//if (GetLocalRole()!=ROLE_Authority)return;
-	if (PS->InformationCompoent->CurrentWeapon)
+	if (!PS)return;
+	if (PS->CurrentWeaponArray.IsValidIndex(0))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("attack"));
-		PS->InformationCompoent->CurrentWeapon->Attack();
+		PS->CurrentWeaponArray[0]->Attack();
 	}
 }
+
 
 void ASwordFlyCharacter::ReceiveDamage(float var)
 {
