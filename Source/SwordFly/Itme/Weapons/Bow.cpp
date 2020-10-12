@@ -2,69 +2,138 @@
 
 
 #include "Bow.h"
-
-
-
 #include "Camera/CameraComponent.h"
 #include "SwordFly/Arrow.h"
+#include "Net/UnrealNetwork.h"
 #include "SwordFly/GamePlay/Character/SwordFlyCharacter.h"
 #include "DrawDebugHelpers.h"
 #include "SwordFly/Arrow.h"
+#include "SwordFly/GamePlay/PlayerController/SwordFlyPlayerController.h"
 #include "Components/SphereComponent.h"
 
 ABow::ABow()
 {
     PrimaryActorTick.bCanEverTick = true;
-    this->thisOwner=nullptr;
-    ASwordFlyBaseWeapon::SetWeaponType(EWeaponType::EBow);
+    //this->thisOwner=nullptr;
+    
+   
     AttachLocation="Socket_Left_FString";
     AttachBackLocation="AttachBackLocation2";
     ActorID=3;
+    this->SetReplicates(true);
+    this->SetReplicateMovement(true);
+    bAlwaysRelevant = true;
+    bReplayRewindable=true;
+    SetReplicates(true);
+    SetReplicateMovement(true);
 }
 
 void ABow::Attack()
 {
-    UE_LOG(LogTemp, Warning, TEXT("attack2"));
-    AttackServer();
+   
+}
+
+void ABow::BowAttackServer_Implementation()
+{
+    BowAttackNetMulticast();
+}
+
+bool ABow::BowAttackServer_Validate()
+{
+    return true;
 }
 
 void ABow::AttackServer()
 {
-    AttackNetMulticast();
+    
+    
 }
 
 void ABow::AttackNetMulticast()
 {
-    if (thisOwner == nullptr||thisOwner->GetController()->IsLocalController())return;
-    UAnimInstance* PlayerAnimation = thisOwner->GetMesh()->GetAnimInstance();
-   
-    if (PlayerAnimation)
+    
+}
+
+void ABow::BowAttack()
+{
+    BowAttackServer();
+}
+
+void ABow::BowAttackNetMulticast_Implementation()
+{
+    
+    //ASwordFlyPlayerController *PC=Cast<ASwordFlyPlayerController>(GetOwner());
+
+    ASwordFlyCharacter *player=Cast<ASwordFlyCharacter>(GetOwner());
+    if (player)
     {
-        if (AttackAnimMontage&&PlayerAnimation->IsAnyMontagePlaying()==false) {
-            //thisOwner->GetActorRotation();
-            PlayerAnimation->Montage_Play(AttackAnimMontage);
-            PlayerAnimation->Montage_JumpToSection("BowAttack",AttackAnimMontage);
-            Shoot();
-        }
+        UAnimInstance* PlayerAnimation = player->GetMesh()->GetAnimInstance();
+       
+        if (PlayerAnimation)
+        {
+          
+            if (AttackAnimMontage&&PlayerAnimation->IsAnyMontagePlaying()==false) {
+               
+                //thisOwner->GetActorRotation();
+                PlayerAnimation->Montage_Play(AttackAnimMontage);
+                PlayerAnimation->Montage_JumpToSection("BowAttack",AttackAnimMontage);
+                    
+                Shoot();
+            }
            
+        }
     }
 }
 
 void ABow::BeginPlay()
 {
     Super::BeginPlay();
+    ASwordFlyBaseWeapon::SetWeaponType(EWeaponType::EBow);
+}
+
+EWeaponType ABow::GetWeaponType()
+{
+    return EWeaponType::EBow;
 }
 
 void ABow::Shoot()
 {
-    //if (GetLocalRole()!=ROLE_Authority)return;
-    UE_LOG(LogTemp, Warning, TEXT("attack"));
-    UWorld* World=GetWorld();
-    if (World)
+   
+    if (GetLocalRole()==ROLE_Authority)
     {
-        AArrow* thisAArrow=GetWorld()->SpawnActor<AArrow>(ArrowClass,Mesh->GetSocketLocation("ShootSocket"),thisOwner->TiredCamera->GetComponentRotation());
-        thisAArrow->Collision_Attack->AddImpulse(thisOwner->GetActorLocation()+thisOwner->TiredCamera->GetComponentRotation().Vector()*200000);
-       
+        UWorld* World=GetWorld();
+        if (World&&GetNetOwner())
+        {
+            ASwordFlyCharacter *thisOwnert1=Cast<ASwordFlyCharacter>(GetOwner());
+            if (thisOwnert1)
+            {
+                if (thisOwnert1->GetController())
+                {
+                    AArrow* thisAArrow=World->SpawnActor<AArrow>(ArrowClass,Mesh->GetSocketLocation("ShootSocket"),thisOwnert1->TiredCamera->GetForwardVector().Rotation());
+                    if (thisAArrow)
+                    { 
+                        thisAArrow->Collision_Attack->AddImpulse(thisOwnert1->GetActorLocation()+thisOwnert1->TiredCamera->GetForwardVector()*200000);
+           
+                    }
+                }
+            }
+        }
     }
-  
+}
+
+void ABow::ShootNetMulticast_Implementation()
+{
+   
+    
+}
+
+bool ABow::ShootServer_Validate()
+{
+    return true;
+}
+
+void ABow::ShootServer_Implementation()
+{
+    ShootNetMulticast();
+   
 }

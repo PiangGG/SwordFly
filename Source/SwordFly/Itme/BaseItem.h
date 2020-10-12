@@ -56,13 +56,9 @@ public:
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,Category="Itme")
 	int32 ActorID;
 	
-	UFUNCTION(Server, WithValidation, Reliable)
-	virtual void Collision_Pack_BeginOverlapServer(class UPrimitiveComponent* Component, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-	UFUNCTION(NetMulticast, Reliable)
-	virtual void Collision_Pack_BeginOverlapNetMulticast(class UPrimitiveComponent* Component, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 	UFUNCTION(BlueprintCallable)
 	virtual void Collision_Pack_BeginOverlap(class UPrimitiveComponent* Component,class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-	
+
 	UFUNCTION(BlueprintCallable)
 	virtual void AfterThroud(class ASwordFlyCharacter* theOwner);
 	UFUNCTION(Server, WithValidation, Reliable)
@@ -74,8 +70,6 @@ public:
     virtual void Pack(class ASwordFlyCharacter* theOwner);
 	UFUNCTION(Server, WithValidation, Reliable)
     virtual void PackServer(class ASwordFlyCharacter* theOwner);
-	UFUNCTION(NetMulticast, Reliable)
-    virtual void PackNetMulticast(class ASwordFlyCharacter* theOwner);
 	//拾取定时器
 	FTimerHandle MemberTimerHandle;
 	//重置定时器

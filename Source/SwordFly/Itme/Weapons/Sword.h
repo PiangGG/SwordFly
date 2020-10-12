@@ -20,12 +20,21 @@ class SWORDFLY_API ASword : public ASwordFlyBaseWeapon
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly)
 	class UCapsuleComponent* Collision_Capsule;
 	
-    /*virtual void Attack() override;
+    virtual void Attack() override;
 	
-    virtual void AttackServer()override;*/
+    virtual void AttackServer_Implementation()override;
 	
-    virtual void AttackNetMulticast()override;
+    virtual void AttackNetMulticast_Implementation() override;
 
+	UFUNCTION(BlueprintCallable)
+	void SwordAttack();
+	UFUNCTION(Server,WithValidation,Reliable)
+	void SwordAttackServer();
+	UFUNCTION(NetMulticast,Reliable)
+	void SwordAttackNetMulticast();
+	
+	virtual EWeaponType GetWeaponType() override;
+	
 	virtual void BeginPlay() override;
 
 	UFUNCTION(BlueprintImplementableEvent)

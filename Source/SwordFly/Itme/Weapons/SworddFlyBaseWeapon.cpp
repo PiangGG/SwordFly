@@ -40,8 +40,14 @@ ASwordFlyBaseWeapon::ASwordFlyBaseWeapon()
 
     isAttack=false;
     ActorID=1;
+    
 }
 
+/*void ASwordFlyBaseWeapon::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const
+{
+    Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+    //DOREPLIFETIME(ASwordFlyBaseWeapon, AttackAnimMontage);
+}*/
 void ASwordFlyBaseWeapon::SetItmeType(EItmeType Type)
 {
     thisItmeType=Type;
@@ -50,7 +56,9 @@ void ASwordFlyBaseWeapon::SetItmeType(EItmeType Type)
 
 void ASwordFlyBaseWeapon::Attack()
 {
+    
     AttackServer();
+   
 }
 
 void ASwordFlyBaseWeapon::AttackServer_Implementation()
@@ -59,16 +67,14 @@ void ASwordFlyBaseWeapon::AttackServer_Implementation()
 }
 bool ASwordFlyBaseWeapon::AttackServer_Validate()
 {
-
     return true;
 }
 
 void ASwordFlyBaseWeapon::AttackNetMulticast_Implementation()
 {
-    //UE_LOG(LogTemp, Warning, TEXT("attack"));
-    if (GetLocalRole()!=ROLE_Authority)return;
+    UE_LOG(LogTemp, Warning, TEXT("AttackNetMulticast_Implementation"));
+    //if (GetLocalRole()!=ROLE_Authority)return;
     if (thisOwner == nullptr||!thisOwner->GetController()->IsLocalController())return;
-    
     UAnimInstance* PlayerAnimation = thisOwner->GetMesh()->GetAnimInstance();
     if (PlayerAnimation)
     {
@@ -82,18 +88,9 @@ void ASwordFlyBaseWeapon::AttackNetMulticast_Implementation()
    
 }
 
-void ASwordFlyBaseWeapon::Collision_Pack_BeginOverlap(UPrimitiveComponent* Component, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-{
-    //if (GetLocalRole()!=ROLE_Authority)return;
-    Super::Collision_Pack_BeginOverlap(Component, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult);
-    ASwordFlyCharacter* Player = Cast<ASwordFlyCharacter>(OtherActor);
-    thisOwner=Player;
-    Pack(Player);
-}
-
 EWeaponType ASwordFlyBaseWeapon::GetWeaponType()
 {
-    return  thisWeaponType;
+    return  EWeaponType::EOther;
 }
 
 void ASwordFlyBaseWeapon::SetWeaponType(EWeaponType newType)
@@ -126,16 +123,16 @@ bool ASwordFlyBaseWeapon::EquipmentServer_Validate(ASwordFlyCharacter* Player)
 
 void ASwordFlyBaseWeapon::EquipmentNetMulticast_Implementation(ASwordFlyCharacter* Player)
 {
-    if (!thisOwner)return;
    
-    thisOwner->Equipment(this);
+    if (!Player||!Player->GetController())return;
+    if (!Player->GetController()->IsLocalController())return;  
+    Player->Equipment(this);
+    this->SetOwner(Player);
 }
 
 void ASwordFlyBaseWeapon::UnEquipment(class ASwordFlyCharacter* Player)
 {
-    UE_LOG(LogTemp, Warning, TEXT("UnEquipment7"));
    
-    //UnEquipmentServer(Player);
     if (Player)
     {
         this->AfterThroud(thisOwner);
@@ -143,24 +140,11 @@ void ASwordFlyBaseWeapon::UnEquipment(class ASwordFlyCharacter* Player)
     
 }
 
-void ASwordFlyBaseWeapon::Pack(ASwordFlyCharacter* theOwner)
+void ASwordFlyBaseWeapon::PackServer_Implementation(ASwordFlyCharacter* theOwner)
 {
-    if (!theOwner)return;
-    ASwordFlyPlayerState *PS=Cast<ASwordFlyPlayerState>(theOwner->GetPlayerState());
-    if (!PS)return;
-    UE_LOG(LogTemp, Warning, TEXT("Pack1"));
-    if (!PS->CurrentWeaponArray.IsValidIndex(0))
-    {
-        UE_LOG(LogTemp, Warning, TEXT("Pack1"));
-        Equipment(thisOwner);
-        return;
-    }
-    if (!PS->CurrentWeaponArray.IsValidIndex(1))
-    {
-        Equipment(thisOwner);
-        return;
-    }
-  
+    if (GetLocalRole()!=ROLE_Authority)return;
+    
+    theOwner->PackUp(this);
 }
 
 void ASwordFlyBaseWeapon::UnEquipmentNetMulticast_Implementation(ASwordFlyCharacter* Player)

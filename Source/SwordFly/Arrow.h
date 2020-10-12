@@ -22,7 +22,9 @@ class SWORDFLY_API AArrow : public ASwordFlyBaseWeapon
 	UFUNCTION()
         void OnHitActor(UPrimitiveComponent * HitComponent, AActor *OtherActor, UPrimitiveComponent* OtherComp
             , FVector NormalImpulse, const FHitResult &Hit);
-	
+	UFUNCTION(Server,WithValidation,Reliable)
+	void OnHitActorServer(UPrimitiveComponent * HitComponent, AActor *OtherActor, UPrimitiveComponent* OtherComp
+            , FVector NormalImpulse, const FHitResult &Hit);
 	UPROPERTY(BlueprintReadOnly,EditDefaultsOnly)
 	float DamageVar;
 

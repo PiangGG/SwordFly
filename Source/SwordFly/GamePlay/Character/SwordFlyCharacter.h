@@ -74,26 +74,28 @@ public:
 	float CharacterMaxSpeed;
 	//角色武器
 	UFUNCTION(BlueprintCallable)
-	class ABaseItem * GetCurrentWeapon();
-	void SetCurrentWeapon(class ABaseItem* Weapon);
+	class ASwordFlyBaseWeapon* GetCurrentWeapon();
+	void SetCurrentWeapon(class ASwordFlyBaseWeapon* Weapon);
 	
 	
 	//拾取物品
 	UFUNCTION(BlueprintCallable)
 	void PackUp(class ABaseItem* Itme);
-	
-
+	UPROPERTY(Replicated,BlueprintReadOnly,EditDefaultsOnly)
+	TArray<ASwordFlyBaseWeapon*> PlayerWeaponArray;
+	UPROPERTY(Replicated,BlueprintReadOnly,EditDefaultsOnly)
+	TArray<ABaseItem* >PlayerItemArray;
 	//装备武器
 	UFUNCTION(BlueprintCallable)
 	void Equipment(class ASwordFlyBaseWeapon* Itme);
+	UFUNCTION(Server,WithValidation,Reliable)
+    void EquipmentServer(class ASwordFlyBaseWeapon* Itme);
 	
-
 	UFUNCTION(BlueprintCallable)
 	void UnEquipment();
 	UFUNCTION(Server,WithValidation,Reliable)
     void UnEquipmentServer();
-	UFUNCTION(NetMulticast,Reliable)
-    void UnEquipmentNetMulticast();
+	
 	
 
 	UFUNCTION(BlueprintCallable)
@@ -109,6 +111,8 @@ public:
 	//被伤害
 	UFUNCTION(BlueprintCallable)
 	void ReceiveDamage(float var);
+
+	//virtual void recae
 	UFUNCTION(BlueprintCallable)
 	void Death();
 	UFUNCTION(BlueprintCallable,Server,WithValidation,Reliable)

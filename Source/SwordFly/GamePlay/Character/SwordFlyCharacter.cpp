@@ -13,11 +13,14 @@
 #include "SwordFly/Itme/BaseItem.h"
 #include "SwordFly/Itme/Weapons/SwordFlyBaseWeapon.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Misc/AssetRegistryInterface.h"
 #include "Net/UnrealNetwork.h"
 #include "Serialization/JsonTypes.h"
 #include "SwordFly/GamePlay/PlayerState/SwordFlyPlayerState.h"
 #include "SwordFly/Component/SwordFlyInformationrComponent.h"
 #include "SwordFly/Component/SwordFlyInformationrComponent.h"
+#include "SwordFly/Itme/Weapons/Sword.h"
+#include "SwordFly/Itme/Weapons/Bow.h"
 class ASwordFlyBaseWeapon;
 // Sets default values
 ASwordFlyCharacter::ASwordFlyCharacter()
@@ -36,7 +39,6 @@ ASwordFlyCharacter::ASwordFlyCharacter()
 	TiredCamera->FieldOfView = 110.f;
 	TiredCamera->SetIsReplicated(true);
 	TiredCamera->SetupAttachment(SpringArmComp);
-	TiredCamera->SetIsReplicated(true);
 	
 	bAlwaysRelevant = true;
 	bReplayRewindable=true;
@@ -60,6 +62,9 @@ ASwordFlyCharacter::ASwordFlyCharacter()
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_EngineTraceChannel1,ECR_Overlap);
    
 	isRuning=false;
+
+	PlayerWeaponArray= TArray<ASwordFlyBaseWeapon*>();
+	PlayerItemArray=TArray<ABaseItem*>();
 }
 
 void ASwordFlyCharacter::BeginPlay()
@@ -194,20 +199,22 @@ void ASwordFlyCharacter::SetCharacterState(ECharacterState newState)
 	}
 }
 
-ABaseItem* ASwordFlyCharacter::GetCurrentWeapon()
+ASwordFlyBaseWeapon* ASwordFlyCharacter::GetCurrentWeapon()
 {
-	
-	ASwordFlyPlayerState* PS=Cast<ASwordFlyPlayerState>(GetPlayerState());
-	if (PS)
+	if (PlayerWeaponArray.IsValidIndex(0))
 	{
-		PS->CurrentWeaponArray[0];
+		return PlayerWeaponArray[0];
 	}
 	return nullptr;
 }
 
-void ASwordFlyCharacter::SetCurrentWeapon(ABaseItem* Weapon)
+void ASwordFlyCharacter::SetCurrentWeapon(ASwordFlyBaseWeapon* Weapon)
 {
-	
+	if (Weapon==nullptr)
+	{
+		SetCharacterState(ECharacterState::ENone);
+		return;
+	}
 	ASwordFlyPlayerState* PS=Cast<ASwordFlyPlayerState>(GetPlayerState());
 	
 	ASwordFlyBaseWeapon* thisWeapon=Cast<ASwordFlyBaseWeapon>(Weapon);
@@ -233,23 +240,79 @@ void ASwordFlyCharacter::SetCurrentWeapon(ABaseItem* Weapon)
 				SetCharacterState(ECharacterState::ENone);
 				break;
 			}
-		default: break;;
+		default:
+			SetCharacterState(ECharacterState::ENone);
+			break;;
 	}
 }
 
 void ASwordFlyCharacter::PackUp(ABaseItem* Itme)
 {
-	
+	if (!Itme)return;
+
+	switch (Itme->GetItemType())
+	{
+		case EItmeType::EWeapon:
+			{
+				ASwordFlyBaseWeapon *thisWeapon=Cast<ASwordFlyBaseWeapon>(Itme);
+				this->Equipment(thisWeapon);
+				break;
+			}
+		case EItmeType::EOther:
+			break;
+	default:
+		break;
+	}
 }
 
 void ASwordFlyCharacter::Equipment(ASwordFlyBaseWeapon* Itme)
 {
+	EquipmentServer(Itme);
+}
+
+void ASwordFlyCharacter::EquipmentServer_Implementation(ASwordFlyBaseWeapon* Itme)
+{
+	//if (!GetController()||!GetController()->IsLocalController())return;
 	
+	if (GetLocalRole()!=ROLE_Authority)return;
 	ASwordFlyPlayerState *PS=Cast<ASwordFlyPlayerState>(GetPlayerState());
-	if (!Itme||!PS)return;
-	PS->Equipment(this,Itme);
+	if (!PS)return;
+	
+	if (PlayerWeaponArray.Num()<2)
+	{
+		
+		if (!PlayerWeaponArray.IsValidIndex(0)&&!PlayerWeaponArray.IsValidIndex(1))
+		{
+			Itme->AttachToComponent(GetMesh(),FAttachmentTransformRules::SnapToTargetNotIncludingScale,Itme->AttachLocation);
+			PlayerWeaponArray.Insert(Itme,0);
+			SetCurrentWeapon(Itme);
+			PS->Equipment(Itme);
+		}else if (PlayerWeaponArray.IsValidIndex(0)&&!PlayerWeaponArray.IsValidIndex(1)&&PlayerWeaponArray[0]->GetWeaponType()!=Itme->GetWeaponType())
+		{
+			Itme->AttachToComponent(GetMesh(),FAttachmentTransformRules::SnapToTargetNotIncludingScale,Itme->AttachBackLocation);
+			PlayerWeaponArray.Insert(Itme,1);
+			PS->Equipment(Itme);
+		}else
+		{
+			PlayerItemArray.Add(Itme);
+			Itme->SetActorHiddenInGame(true);
+			PS->PackUp(Itme);
+		}
+	}else
+	{
+		PlayerItemArray.Add(Itme);
+		Itme->SetActorHiddenInGame(true);
+		PS->PackUp(Itme);
+	}
 	
 }
+
+bool ASwordFlyCharacter::EquipmentServer_Validate(ASwordFlyBaseWeapon* Itme)
+{
+	return true;
+}
+
+
 
 void ASwordFlyCharacter::UnEquipment()
 {
@@ -260,25 +323,19 @@ void ASwordFlyCharacter::UnEquipment()
 
 void ASwordFlyCharacter::UnEquipmentServer_Implementation()
 {
-	UnEquipmentNetMulticast();
+	if (GetLocalRole()!=ROLE_Authority)return;
+	ASwordFlyPlayerState* PS=Cast<ASwordFlyPlayerState>(GetPlayerState());
+	if (!PS||!PS->PlayerWeaponArray.IsValidIndex(0)||!PlayerWeaponArray.IsValidIndex(0))return;
+
+	PlayerWeaponArray[0]->UnEquipment(this);
+	PlayerWeaponArray.RemoveAt(0);
+	SetCurrentWeapon(nullptr);
+	PS->UnEquipment();
 }
 
 bool ASwordFlyCharacter::UnEquipmentServer_Validate()
 {
 	return true;
-}
-void ASwordFlyCharacter::UnEquipmentNetMulticast_Implementation()
-{
-	if (GetLocalRole()!=ROLE_Authority)return;
-	
-	ASwordFlyPlayerController *PC=Cast<ASwordFlyPlayerController>(GetController());
-	if (!PC||PC->IsLocalController())return;
-	
-	ASwordFlyPlayerState* PS=Cast<ASwordFlyPlayerState>(GetPlayerState());
-	if (!PS)return;
-	
-	if (!PS->CurrentWeaponArray.IsValidIndex(0))return;
-	PS->UnEquipment();
 }
 
 void ASwordFlyCharacter::SweapWeapon(ASwordFlyBaseWeapon* newWeapon)
@@ -296,15 +353,16 @@ void ASwordFlyCharacter::SweapWeapon(ASwordFlyBaseWeapon* newWeapon)
 
 void ASwordFlyCharacter::Attack()
 {
-	AttackServer();
-	//if (GetLocalRole()!=ROLE_Authority)return;
-	
-
+	AttackServer();	
 }
 
 void ASwordFlyCharacter::AttackServer_Implementation()
 {
-	AttackNetMulticast();
+	if (GetLocalRole()==ROLE_Authority)
+	{
+		AttackNetMulticast();
+	}
+	
 }
 
 bool ASwordFlyCharacter::AttackServer_Validate()
@@ -314,23 +372,43 @@ bool ASwordFlyCharacter::AttackServer_Validate()
 
 void ASwordFlyCharacter::AttackNetMulticast_Implementation()
 {
-	ASwordFlyPlayerState* PS=Cast<ASwordFlyPlayerState>(GetPlayerState());
-	if (GetLocalRole()!=ROLE_Authority)return;
-	if (!GetController()->IsLocalController())return;
-	
-	if (!PS)return;
-	if (PS->CurrentWeaponArray.IsValidIndex(0))
+	if (!GetController())return;
+	if (PlayerWeaponArray.IsValidIndex(0))
 	{
-		PS->CurrentWeaponArray[0]->Attack();
+		
+		switch (PlayerWeaponArray[0]->GetWeaponType())
+		{
+			
+			case EWeaponType::ESword:
+				{
+					ASword *thisWeapon=Cast<ASword>(PlayerWeaponArray[0]);
+					if (thisWeapon)
+					{
+						thisWeapon->SwordAttack();
+					}
+					
+					break;
+				}
+		case EWeaponType::EBow:
+				{
+					ABow *thisWeapon=Cast<ABow>(PlayerWeaponArray[0]);
+					
+					if (thisWeapon)
+					{
+						thisWeapon->BowAttack();
+					}
+					break;
+				}
+			default:
+				break;
+		}
+		
 	}
 }
 
 
 void ASwordFlyCharacter::ReceiveDamage(float var)
 {
-	
-	if (GetLocalRole()!=ROLE_Authority)return;
-	if (!GetController()->IsLocalController())return;
 	
 	ASwordFlyPlayerState* PS=Cast<ASwordFlyPlayerState>(GetPlayerState());
 	if (PS)
@@ -361,7 +439,7 @@ bool ASwordFlyCharacter::RunServer_Validate()
 
 void ASwordFlyCharacter::RunNetMulticast_Implementation()
 {
-	if (GetController())
+	//if (GetController())
 	{
 		if (isRuning) {
 			isRuning = false;
@@ -378,14 +456,21 @@ void ASwordFlyCharacter::RunNetMulticast_Implementation()
 
 void ASwordFlyCharacter::DeathNetMulticast_Implementation()
 {
-	if (GetLocalRole()!=ROLE_Authority)return;
+	if(GetLocalRole()!=ROLE_Authority)return;
+	if (!GetController())return;
 	if (!GetController()->IsLocalController())return;
-	GetMesh()->SetSimulatePhysics(true);	
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
+	GetMesh()->SetAllBodiesSimulatePhysics(true);
+	GetMesh()->SetAllBodiesBelowPhysicsBlendWeight(GetMesh()->GetBoneName(0),1,false);
+	GetController()->UnPossess();
 }
 
 void ASwordFlyCharacter::DeathServer_Implementation()
 {
-	DeathNetMulticast();
+	
+		DeathNetMulticast();
+	
+	
 }
 
 bool ASwordFlyCharacter::DeathServer_Validate()

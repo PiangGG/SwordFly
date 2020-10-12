@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerState.h"
 #include "SwordFly/GamePlay/Character/SwordFlyCharacter.h"
-
+#include "SwordFly/GamePlay/GameState/SwordFlyGameStateBase.h"
 #include "SwordFlyPlayerState.generated.h"
 
 class ABaseItem;
@@ -21,8 +21,6 @@ public:
 
 	ASwordFlyPlayerState();
 	
-	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly, Category = "Player State")
-	class USwordFlyInformationrComponent* InformationCompoent;
 	
 	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly, Category = "Player State")
 	float CurrentHealth;
@@ -33,10 +31,10 @@ public:
 	float CurrentVitality;
 	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly, Category = "Player State")
 	float MaxVitality;
-
-	
-	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly, Category = "Player State")
-	TArray<class ASwordFlyBaseWeapon*> CurrentWeaponArray;
+	UPROPERTY(Replicated,BlueprintReadOnly,EditDefaultsOnly, Category = "Player State")
+	TArray<ASwordFlyBaseWeapon*> PlayerWeaponArray;
+	UPROPERTY(Replicated,BlueprintReadOnly,EditDefaultsOnly, Category = "Player State")
+	TArray<ABaseItem* >PlayerItemArray;
 	
 	UFUNCTION(BlueprintCallable)
 	void SetCurrentWeapon(class ASwordFlyBaseWeapon* NewWeapon);
@@ -48,14 +46,11 @@ public:
 	void PackUp(ABaseItem* Itme);
 	
 	UFUNCTION(BlueprintCallable)
-	void Equipment(ASwordFlyCharacter* Player, ASwordFlyBaseWeapon* Itme);
+	void Equipment(ASwordFlyBaseWeapon* Itme);
 	
 	UFUNCTION(BlueprintCallable)
 	void UnEquipment();
-	UFUNCTION(BlueprintCallable,Server,WithValidation,Reliable)
-    void UnEquipmentServer();
-	UFUNCTION(BlueprintCallable,NetMulticast,Reliable)
-    void UnEquipmentNetMulticast();
+	
 public:
 	UFUNCTION(BlueprintCallable, Category = "Player State")
     void CollectHeart(float var);
@@ -65,4 +60,12 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Player State")
 	void ReceiveDamage(float var);
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Platformer Player State")
+	EMatchState CurrentLocalMatchState;
+	
+	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable, Category = "Platformer Player State")
+    void PlayerRespawnedAfterDeath();
+
+	int GetCurrentHealth();
 };

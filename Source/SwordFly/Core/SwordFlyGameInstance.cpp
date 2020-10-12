@@ -80,8 +80,8 @@ void USwordFlyGameInstance::SetInputMode(EInputMode newInputMode, bool bShowMous
     }
 
     //show or hide mouse cursor
-    //GetWorld()->GetFirstPlayerController()->bShowMouseCursor = bShowMouseCursor;
-    GetFirstLocalPlayerController()->bShowMouseCursor=bShowMouseCursor;
+    GetWorld()->GetFirstPlayerController()->bShowMouseCursor = bShowMouseCursor;
+    //GetFirstLocalPlayerController()->bShowMouseCursor=bShowMouseCursor;
     //retain the values for further use
     CurrentInputMode = newInputMode;
  

@@ -25,7 +25,7 @@ ABaseItem::ABaseItem()
 	Collision_Pack->SetCollisionResponseToChannels(ECR_Ignore);
 	Collision_Pack->SetCollisionResponseToChannel(ECC_EngineTraceChannel1, ECR_Overlap);
 	Collision_Pack->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
-
+	
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(FName("Mesh"));
 	Mesh->SetSimulatePhysics(true);
 	Mesh->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
@@ -66,57 +66,28 @@ void ABaseItem::SetItmeType(EItmeType Type)
 	thisItmeType=Type;
 }
 
-void ABaseItem::Collision_Pack_BeginOverlapServer_Implementation(UPrimitiveComponent* Component, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+void ABaseItem::Collision_Pack_BeginOverlap(UPrimitiveComponent* Component,AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
+	bool bFromSweep, const FHitResult& SweepResult)
 {
-	Collision_Pack_BeginOverlapNetMulticast(Component, OtherActor, OtherComp, OtherBodyIndex,
-		bFromSweep, SweepResult);
-}
-
-bool ABaseItem::Collision_Pack_BeginOverlapServer_Validate(UPrimitiveComponent* Component, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-{
-	return true;
-}
-
-void ABaseItem::Collision_Pack_BeginOverlapNetMulticast_Implementation(UPrimitiveComponent* Component, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-{
-	if (thisOwner != nullptr)return;
-
-	/*ASwordFlyCharacter* Player = Cast<ASwordFlyCharacter>(OtherActor);
-
+	if (GetOwner() != nullptr)return;
+	
+	ASwordFlyCharacter* Player = Cast<ASwordFlyCharacter>(OtherActor);
 	
 	if (Player)
 	{
 		Collision_Pack->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		Collision_Pack->SetCollisionResponseToChannels(ECR_Ignore);
-
+		
 		Mesh->SetSimulatePhysics(false);
 		Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		thisOwner = Player;
-		Pack(thisOwner);
-	}*/
-}
-
-void ABaseItem::Collision_Pack_BeginOverlap(UPrimitiveComponent* Component,AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
-	bool bFromSweep, const FHitResult& SweepResult)
-{
-	Collision_Pack_BeginOverlapServer(Component,OtherActor, OtherComp,OtherBodyIndex,
-		bFromSweep,SweepResult);
+		SetOwner(Player);
+		Pack(Player);
+	}
 }
 
 void ABaseItem::AfterThroud(class ASwordFlyCharacter* theOwner)
 {
-	GetWorldTimerManager().SetTimer(MemberTimerHandle, this, &ABaseItem::ReSetPackupFTimerHndle, 1.0f, true, 5.0f);
-	Mesh->SetSimulatePhysics(true);
-	this->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
-	Mesh->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
-	Mesh->SetCollisionResponseToChannels(ECR_Block);
-	
-	Collision_Pack->SetCollisionResponseToChannels(ECR_Ignore);
-	Collision_Pack->SetCollisionResponseToChannel(ECC_EngineTraceChannel1, ECR_Overlap);
-	Collision_Pack->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
-	this->SetActorHiddenInGame(false);
-	thisOwner = nullptr;
-	//AfterThroudServer(theOwner);
+	AfterThroudServer(theOwner);
 }
 
 void ABaseItem::Pack(ASwordFlyCharacter* theOwner)
@@ -124,15 +95,10 @@ void ABaseItem::Pack(ASwordFlyCharacter* theOwner)
 	PackServer(theOwner);
 }
 
-void ABaseItem::PackNetMulticast_Implementation(ASwordFlyCharacter* theOwner)
-{
-	if (!theOwner)return;
-	
-}
-
 void ABaseItem::PackServer_Implementation(ASwordFlyCharacter* theOwner)
 {
-	PackNetMulticast(theOwner);
+	if (GetLocalRole()!=ROLE_Authority)return;
+	theOwner->PackUp(this);
 }
 
 bool ABaseItem::PackServer_Validate(ASwordFlyCharacter* theOwner)
@@ -142,7 +108,9 @@ bool ABaseItem::PackServer_Validate(ASwordFlyCharacter* theOwner)
 
 void ABaseItem::AfterThroudServer_Implementation(ASwordFlyCharacter* theOwner)
 {
+	if (GetLocalRole()!=ROLE_Authority)return;
 	AfterThroudNetMulticast(theOwner);
+	
 }
 bool ABaseItem::AfterThroudServer_Validate(ASwordFlyCharacter* theOwner)
 {
@@ -152,10 +120,9 @@ bool ABaseItem::AfterThroudServer_Validate(ASwordFlyCharacter* theOwner)
 
 void ABaseItem::AfterThroudNetMulticast_Implementation(ASwordFlyCharacter* theOwner)
 {
-	UE_LOG(LogTemp, Warning, TEXT("UnEquipment9"));
 	GetWorldTimerManager().SetTimer(MemberTimerHandle, this, &ABaseItem::ReSetPackupFTimerHndle, 1.0f, true, 5.0f);
-	Mesh->SetSimulatePhysics(true);
 	this->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+	Mesh->SetSimulatePhysics(true);
 	Mesh->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
 	Mesh->SetCollisionResponseToChannels(ECR_Block);
 	
@@ -163,7 +130,9 @@ void ABaseItem::AfterThroudNetMulticast_Implementation(ASwordFlyCharacter* theOw
 	Collision_Pack->SetCollisionResponseToChannel(ECC_EngineTraceChannel1, ECR_Overlap);
 	Collision_Pack->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
 	this->SetActorHiddenInGame(false);
-	thisOwner = nullptr;
+	this->SetOwner(nullptr);
+	//UE_LOG(LogTemp, Warning, TEXT("UnEquipment9"));
+	
 }
 
 void ABaseItem::ReSetPackupFTimerHndle()

@@ -17,23 +17,26 @@ ASword::ASword()
     Collision_Capsule=CreateDefaultSubobject<UCapsuleComponent>(FName("Collision_Capsule"));
     Collision_Capsule->SetupAttachment(RootComponent);
     ActorID=2;
+    
 }
 
-/*void ASword::Attack()
+void ASword::Attack()
 {
     AttackServer();
 }
 
-void ASword::AttackServer()
+void ASword::AttackServer_Implementation()
 {
     AttackNetMulticast();
-}*/
+}
 
-void ASword::AttackNetMulticast()
+
+void ASword::AttackNetMulticast_Implementation()
 {
-    if (thisOwner == nullptr)return;
-    
-    UAnimInstance* PlayerAnimation = thisOwner->GetMesh()->GetAnimInstance();
+    if (!GetOwner())return;
+    ASwordFlyCharacter* Player=Cast<ASwordFlyCharacter>(GetOwner());
+    if (!Player)return;
+    UAnimInstance* PlayerAnimation = Player->GetMesh()->GetAnimInstance();
     if (PlayerAnimation)
     {
         if (AttackAnimMontage&&PlayerAnimation->IsAnyMontagePlaying()==false) {
@@ -43,6 +46,43 @@ void ASword::AttackNetMulticast()
         }
            
     }
+}
+
+void ASword::SwordAttack()
+{
+    SwordAttackServer();
+}
+
+void ASword::SwordAttackServer_Implementation()
+{
+    SwordAttackNetMulticast();
+}
+
+bool ASword::SwordAttackServer_Validate()
+{
+    return true;
+}
+
+void ASword::SwordAttackNetMulticast_Implementation()
+{
+    if (!GetOwner())return;
+    ASwordFlyCharacter* Player=Cast<ASwordFlyCharacter>(GetOwner());
+    if (!Player)return;
+    UAnimInstance* PlayerAnimation = Player->GetMesh()->GetAnimInstance();
+    if (PlayerAnimation)
+    {
+        if (AttackAnimMontage&&PlayerAnimation->IsAnyMontagePlaying()==false) {
+          
+            PlayerAnimation->Montage_Play(AttackAnimMontage);
+            PlayerAnimation->Montage_JumpToSection("SwordAttack",AttackAnimMontage);
+        }
+           
+    }
+}
+
+EWeaponType ASword::GetWeaponType()
+{
+    return EWeaponType::ESword;
 }
 
 void ASword::BeginPlay()

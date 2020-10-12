@@ -34,20 +34,20 @@ public:
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly)
 	class USphereComponent* Collision_Attack;
 	
-	UFUNCTION(BlueprintCallable)
+	//UFUNCTION(BlueprintCallable)
     virtual void Attack(/*class UPrimitiveComponent* Component,class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult*/);
-	UFUNCTION(Server, WithValidation, Reliable)
+	UFUNCTION(Server,WithValidation, Reliable,BlueprintCallable)
 	virtual void AttackServer(/*class UPrimitiveComponent* Component, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult*/);
 	UFUNCTION(NetMulticast, Reliable)
-	virtual void AttackNetMulticast(/*class UPrimitiveComponent* Component, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult*/);
+	 virtual void AttackNetMulticast(/*class UPrimitiveComponent* Component, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult*/);
 
     //UFUNCTION()
-	virtual void Collision_Pack_BeginOverlap(class UPrimitiveComponent* Component,class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) override;
+	//virtual void Collision_Pack_BeginOverlap(class UPrimitiveComponent* Component,class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) override;
 
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly)
 	EWeaponType thisWeaponType;
 	UFUNCTION(BlueprintCallable)
-	EWeaponType GetWeaponType();
+	virtual EWeaponType GetWeaponType();
 	UFUNCTION(BlueprintCallable)
 	virtual void SetWeaponType(EWeaponType newType);
 
@@ -74,5 +74,5 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 	virtual void UnEquipmentNetMulticast(class ASwordFlyCharacter* Player);
 
-	virtual void Pack(ASwordFlyCharacter* theOwner) override;
+	virtual void PackServer_Implementation(ASwordFlyCharacter* theOwner) override;
 };
