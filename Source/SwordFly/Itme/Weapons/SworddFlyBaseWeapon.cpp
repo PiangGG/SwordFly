@@ -56,9 +56,27 @@ void ASwordFlyBaseWeapon::SetItmeType(EItmeType Type)
 
 void ASwordFlyBaseWeapon::Attack()
 {
-    
     AttackServer();
-   
+   /* if (GetLocalRole()<ROLE_Authority)
+    {
+        AttackServer();
+    }
+    
+    if (thisOwner == nullptr||!thisOwner->GetController()->IsLocalController())return;
+    UAnimInstance* PlayerAnimation = thisOwner->GetMesh()->GetAnimInstance();
+    if (PlayerAnimation)
+    {
+        if (AttackAnimMontage&&PlayerAnimation->IsAnyMontagePlaying()==false)
+        {
+            PlayerAnimation->Montage_Play(AttackAnimMontage);
+           
+        }
+           
+    }*/
+}
+
+void ASwordFlyBaseWeapon::AttackNetMulticast_Implementation()
+{
 }
 
 void ASwordFlyBaseWeapon::AttackServer_Implementation()
@@ -68,24 +86,6 @@ void ASwordFlyBaseWeapon::AttackServer_Implementation()
 bool ASwordFlyBaseWeapon::AttackServer_Validate()
 {
     return true;
-}
-
-void ASwordFlyBaseWeapon::AttackNetMulticast_Implementation()
-{
-    UE_LOG(LogTemp, Warning, TEXT("AttackNetMulticast_Implementation"));
-    //if (GetLocalRole()!=ROLE_Authority)return;
-    if (thisOwner == nullptr||!thisOwner->GetController()->IsLocalController())return;
-    UAnimInstance* PlayerAnimation = thisOwner->GetMesh()->GetAnimInstance();
-    if (PlayerAnimation)
-    {
-        if (AttackAnimMontage&&PlayerAnimation->IsAnyMontagePlaying()==false)
-            {
-                PlayerAnimation->Montage_Play(AttackAnimMontage);
-           
-            }
-           
-    }
-   
 }
 
 EWeaponType ASwordFlyBaseWeapon::GetWeaponType()

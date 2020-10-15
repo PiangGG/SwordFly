@@ -30,40 +30,16 @@ ABow::ABow()
 
 void ABow::Attack()
 {
-   
+    AttackServer();  
 }
 
-void ABow::BowAttackServer_Implementation()
+void ABow::AttackServer_Implementation()
 {
-    BowAttackNetMulticast();
+    AttackNetMulticast();
 }
 
-bool ABow::BowAttackServer_Validate()
+void ABow::AttackNetMulticast_Implementation()
 {
-    return true;
-}
-
-void ABow::AttackServer()
-{
-    
-    
-}
-
-void ABow::AttackNetMulticast()
-{
-    
-}
-
-void ABow::BowAttack()
-{
-    BowAttackServer();
-}
-
-void ABow::BowAttackNetMulticast_Implementation()
-{
-    
-    //ASwordFlyPlayerController *PC=Cast<ASwordFlyPlayerController>(GetOwner());
-
     ASwordFlyCharacter *player=Cast<ASwordFlyCharacter>(GetOwner());
     if (player)
     {

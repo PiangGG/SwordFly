@@ -30,10 +30,9 @@ ASwordFlyCharacter::ASwordFlyCharacter()
 
 	SpringArmComp=CreateDefaultSubobject<USpringArmComponent>(FName("springcomp"));
 	SpringArmComp->bUsePawnControlRotation = false;
-	SpringArmComp->TargetArmLength = 700.f;
-	SpringArmComp->SetIsReplicated(true);
+	SpringArmComp->TargetArmLength = 300.f;
+	SpringArmComp->SetUsingAbsoluteRotation(true);
 	SpringArmComp->SetupAttachment(RootComponent);
-	SpringArmComp->SetIsReplicated(true);
 	
 	TiredCamera=CreateDefaultSubobject<UCameraComponent>(FName("Camera"));
 	TiredCamera->FieldOfView = 110.f;
@@ -50,7 +49,7 @@ ASwordFlyCharacter::ASwordFlyCharacter()
 	bUseControllerRotationYaw = false;
 	
 	GetMesh()->SetIsReplicated(true);
-	
+
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->JumpZVelocity = 1000.f;
 	GetCharacterMovement()->GravityScale = 2.f;
@@ -112,6 +111,9 @@ void ASwordFlyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 
 	InputComponent->BindAction("Run", EInputEvent::IE_Pressed, this, &ASwordFlyCharacter::Run);
 	InputComponent->BindAction("Run", EInputEvent::IE_Released, this, &ASwordFlyCharacter::Run);
+
+	InputComponent->BindAction("Fly", EInputEvent::IE_Pressed, this, &ASwordFlyCharacter::Fly);
+	InputComponent->BindAction("Fly", EInputEvent::IE_Released, this, &ASwordFlyCharacter::Fly);
 	
 }
 
@@ -193,6 +195,7 @@ void ASwordFlyCharacter::SetCharacterState(ECharacterState newState)
 		case ECharacterState::ENone:{break;}
 		case ECharacterState::ESword:{break;}
 		case ECharacterState::EBow:{break;}
+		case ECharacterState::ESwordFly:{break;}
 		case ECharacterState::EOther:{break;}
 	default:
 		break;
@@ -226,8 +229,14 @@ void ASwordFlyCharacter::SetCurrentWeapon(ASwordFlyBaseWeapon* Weapon)
 	{
 		case EWeaponType::EBow:
 			{
+				if (bIsFly)
+				{
+					SetCharacterState(ECharacterState::ESwordFly);
+				}else
+				{
+					SetCharacterState(ECharacterState::EBow);
+				}
 				
-				SetCharacterState(ECharacterState::EBow);
 				break;
 			}
 		case EWeaponType::ESword:
@@ -267,14 +276,10 @@ void ASwordFlyCharacter::PackUp(ABaseItem* Itme)
 
 void ASwordFlyCharacter::Equipment(ASwordFlyBaseWeapon* Itme)
 {
-	EquipmentServer(Itme);
-}
-
-void ASwordFlyCharacter::EquipmentServer_Implementation(ASwordFlyBaseWeapon* Itme)
-{
-	//if (!GetController()||!GetController()->IsLocalController())return;
-	
-	if (GetLocalRole()!=ROLE_Authority)return;
+	if (GetLocalRole()<ROLE_Authority)
+	{
+		EquipmentServer(Itme);
+	}
 	ASwordFlyPlayerState *PS=Cast<ASwordFlyPlayerState>(GetPlayerState());
 	if (!PS)return;
 	
@@ -304,7 +309,11 @@ void ASwordFlyCharacter::EquipmentServer_Implementation(ASwordFlyBaseWeapon* Itm
 		Itme->SetActorHiddenInGame(true);
 		PS->PackUp(Itme);
 	}
-	
+}
+
+void ASwordFlyCharacter::EquipmentServer_Implementation(ASwordFlyBaseWeapon* Itme)
+{	
+	Equipment(Itme);	
 }
 
 bool ASwordFlyCharacter::EquipmentServer_Validate(ASwordFlyBaseWeapon* Itme)
@@ -316,21 +325,32 @@ bool ASwordFlyCharacter::EquipmentServer_Validate(ASwordFlyBaseWeapon* Itme)
 
 void ASwordFlyCharacter::UnEquipment()
 {
-	//if (GetLocalRole()!=ROLE_Authority)return;
-	
-	UnEquipmentServer();
+	if (GetLocalRole()<ROLE_Authority)
+	{
+		UnEquipmentServer();
+	}
+	ASwordFlyPlayerState* PS=Cast<ASwordFlyPlayerState>(GetPlayerState());
+	if (!PS||!PS->PlayerWeaponArray.IsValidIndex(0)||!PlayerWeaponArray.IsValidIndex(0))return;
+
+	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
+	PlayerWeaponArray[0]->UnEquipment(this);
+	PlayerWeaponArray.RemoveAt(0);
+	PS->UnEquipment();
+	if (PlayerWeaponArray.IsValidIndex(0))
+	{
+		SetCurrentWeapon(PlayerWeaponArray[0]);
+		PlayerWeaponArray[0]->AttachToComponent(GetMesh(),FAttachmentTransformRules::SnapToTargetNotIncludingScale,PlayerWeaponArray[0]->AttachLocation);
+		PS->Equipment(PlayerWeaponArray[0]);
+		
+    }else
+    {
+    	SetCurrentWeapon(nullptr);
+    }
 }
 
 void ASwordFlyCharacter::UnEquipmentServer_Implementation()
 {
-	if (GetLocalRole()!=ROLE_Authority)return;
-	ASwordFlyPlayerState* PS=Cast<ASwordFlyPlayerState>(GetPlayerState());
-	if (!PS||!PS->PlayerWeaponArray.IsValidIndex(0)||!PlayerWeaponArray.IsValidIndex(0))return;
-
-	PlayerWeaponArray[0]->UnEquipment(this);
-	PlayerWeaponArray.RemoveAt(0);
-	SetCurrentWeapon(nullptr);
-	PS->UnEquipment();
+	UnEquipment();
 }
 
 bool ASwordFlyCharacter::UnEquipmentServer_Validate()
@@ -340,38 +360,21 @@ bool ASwordFlyCharacter::UnEquipmentServer_Validate()
 
 void ASwordFlyCharacter::SweapWeapon(ASwordFlyBaseWeapon* newWeapon)
 {
-	if (GetLocalRole()!=ROLE_Authority)return;
 	ASwordFlyPlayerState* PS=Cast<ASwordFlyPlayerState>(GetPlayerState());
 	if (PS)
 	{
-		
 		PS->SweapWeapon(newWeapon);
-	}
-	
+	}	
 }
 
 
 void ASwordFlyCharacter::Attack()
 {
-	AttackServer();	
-}
-
-void ASwordFlyCharacter::AttackServer_Implementation()
-{
-	if (GetLocalRole()==ROLE_Authority)
+	if(GetLocalRole()<ROLE_Authority)
 	{
-		AttackNetMulticast();
+		AttackServer();	
 	}
-	
-}
 
-bool ASwordFlyCharacter::AttackServer_Validate()
-{
-	return true;
-}
-
-void ASwordFlyCharacter::AttackNetMulticast_Implementation()
-{
 	if (!GetController())return;
 	if (PlayerWeaponArray.IsValidIndex(0))
 	{
@@ -379,37 +382,46 @@ void ASwordFlyCharacter::AttackNetMulticast_Implementation()
 		switch (PlayerWeaponArray[0]->GetWeaponType())
 		{
 			
-			case EWeaponType::ESword:
+		case EWeaponType::ESword:
+			{
+				ASword *thisWeapon=Cast<ASword>(PlayerWeaponArray[0]);
+				if (thisWeapon)
 				{
-					ASword *thisWeapon=Cast<ASword>(PlayerWeaponArray[0]);
-					if (thisWeapon)
-					{
-						thisWeapon->SwordAttack();
-					}
-					
-					break;
+					thisWeapon->Attack();
 				}
-		case EWeaponType::EBow:
-				{
-					ABow *thisWeapon=Cast<ABow>(PlayerWeaponArray[0]);
 					
-					if (thisWeapon)
-					{
-						thisWeapon->BowAttack();
-					}
-					break;
-				}
-			default:
 				break;
+			}
+		case EWeaponType::EBow:
+			{
+				ABow *thisWeapon=Cast<ABow>(PlayerWeaponArray[0]);
+					
+				if (thisWeapon)
+				{
+					thisWeapon->Attack();
+				}
+				break;
+			}
+		default:
+			break;
 		}
 		
 	}
+
 }
 
+void ASwordFlyCharacter::AttackServer_Implementation()
+{
+	Attack();
+}
+
+bool ASwordFlyCharacter::AttackServer_Validate()
+{
+	return true;
+}
 
 void ASwordFlyCharacter::ReceiveDamage(float var)
 {
-	
 	ASwordFlyPlayerState* PS=Cast<ASwordFlyPlayerState>(GetPlayerState());
 	if (PS)
 	{
@@ -417,19 +429,77 @@ void ASwordFlyCharacter::ReceiveDamage(float var)
 	}
 }
 
-void ASwordFlyCharacter::Death()
-{
-	DeathServer();
-}
-
 void ASwordFlyCharacter::Run()
 {
-	RunServer();
+	if (GetLocalRole()<ROLE_Authority)
+	{
+		RunServer();
+	}
+	if (isRuning) {
+		isRuning = false;
+		this->GetCharacterMovement()->MaxWalkSpeed = 300.f;
+	}
+	else
+	{
+		isRuning = true;
+		this->GetCharacterMovement()->MaxWalkSpeed = 600.f;
+	}
+}
+
+void ASwordFlyCharacter::Fly()
+{
+	if (GetLocalRole()<ROLE_Authority)
+	{
+		FlyServer();
+	}
+	if (!PlayerWeaponArray.IsValidIndex(0))return;
+	
+	if (PlayerWeaponArray[0]->GetWeaponType()==EWeaponType::ESword||PlayerWeaponArray[1]->GetWeaponType()==EWeaponType::ESword)
+	{
+		bIsFly = !bIsFly;
+		if (bIsFly)
+		{
+			GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Flying);
+			PlayerWeaponArray[0]->AttachToComponent(GetMesh(),FAttachmentTransformRules::SnapToTargetNotIncludingScale,FName());
+		
+			if (PlayerWeaponArray.IsValidIndex(1)&&PlayerWeaponArray.IsValidIndex(0))
+			{
+				PlayerWeaponArray.Swap(0,1);
+				if (PlayerWeaponArray.IsValidIndex(0))
+				{
+					SetCurrentWeapon(PlayerWeaponArray[0]);
+				}
+				PlayerWeaponArray[0]->AttachToComponent(GetMesh(),FAttachmentTransformRules::SnapToTargetNotIncludingScale,PlayerWeaponArray[0]->AttachLocation);
+			}
+		}else
+		{
+			GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
+			if (PlayerWeaponArray.IsValidIndex(1))
+			{
+				PlayerWeaponArray[0]->AttachToComponent(GetMesh(),FAttachmentTransformRules::SnapToTargetNotIncludingScale,PlayerWeaponArray[0]->AttachBackLocation);
+				PlayerWeaponArray.Swap(0,1);
+				SetCurrentWeapon(PlayerWeaponArray[0]);
+				PlayerWeaponArray[0]->AttachToComponent(GetMesh(),FAttachmentTransformRules::SnapToTargetNotIncludingScale,PlayerWeaponArray[0]->AttachLocation);
+			
+			}
+			}
+	}
+	
+}
+
+void ASwordFlyCharacter::FlyServer_Implementation()
+{
+	Fly();
+}
+
+bool ASwordFlyCharacter::FlyServer_Validate()
+{
+	return true;
 }
 
 void ASwordFlyCharacter::RunServer_Implementation()
 {
-	RunNetMulticast();
+	Run();
 }
 
 bool ASwordFlyCharacter::RunServer_Validate()
@@ -437,40 +507,20 @@ bool ASwordFlyCharacter::RunServer_Validate()
 	return true;
 }
 
-void ASwordFlyCharacter::RunNetMulticast_Implementation()
+void ASwordFlyCharacter::Death()
 {
-	//if (GetController())
+	if (GetLocalRole()<ROLE_Authority)
 	{
-		if (isRuning) {
-			isRuning = false;
-			this->GetCharacterMovement()->MaxWalkSpeed = 300.f;
-		}
-		else
-		{
-			isRuning = true;
-			this->GetCharacterMovement()->MaxWalkSpeed = 600.f;
-		}
+		DeathServer();
 	}
-
-}
-
-void ASwordFlyCharacter::DeathNetMulticast_Implementation()
-{
-	if(GetLocalRole()!=ROLE_Authority)return;
-	if (!GetController())return;
-	if (!GetController()->IsLocalController())return;
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
-	GetMesh()->SetAllBodiesSimulatePhysics(true);
-	GetMesh()->SetAllBodiesBelowPhysicsBlendWeight(GetMesh()->GetBoneName(0),1,false);
 	GetController()->UnPossess();
 }
 
+
 void ASwordFlyCharacter::DeathServer_Implementation()
 {
-	
-		DeathNetMulticast();
-	
-	
+	Death();	
 }
 
 bool ASwordFlyCharacter::DeathServer_Validate()

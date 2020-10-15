@@ -34,13 +34,13 @@ public:
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly)
 	class USphereComponent* Collision_Attack;
 	
-	//UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable)
     virtual void Attack(/*class UPrimitiveComponent* Component,class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult*/);
 	UFUNCTION(Server,WithValidation, Reliable,BlueprintCallable)
 	virtual void AttackServer(/*class UPrimitiveComponent* Component, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult*/);
-	UFUNCTION(NetMulticast, Reliable)
-	 virtual void AttackNetMulticast(/*class UPrimitiveComponent* Component, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult*/);
-
+	UFUNCTION(NetMulticast, Reliable,BlueprintCallable)
+    virtual void AttackNetMulticast(/*class UPrimitiveComponent* Component, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult*/);
+	
     //UFUNCTION()
 	//virtual void Collision_Pack_BeginOverlap(class UPrimitiveComponent* Component,class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) override;
 

@@ -12,6 +12,7 @@ enum class ECharacterState:uint8
 	ENone        	UMETA(DisplayName="正常状态"),
 	ESword 			UMETA(DisplayName="剑"),
 	EBow 			UMETA(DisplayName="弓"),
+	ESwordFly		UMETA(DisplayName="御剑飞行"),
     EOther         	UMETA(DisplayName="其他")
 };
 UCLASS()
@@ -105,9 +106,7 @@ public:
 	void Attack();
 	UFUNCTION(Server,WithValidation,Reliable)
     void AttackServer();
-	UFUNCTION(NetMulticast,Reliable)
-    void AttackNetMulticast();
-
+	
 	//被伤害
 	UFUNCTION(BlueprintCallable)
 	void ReceiveDamage(float var);
@@ -117,15 +116,19 @@ public:
 	void Death();
 	UFUNCTION(BlueprintCallable,Server,WithValidation,Reliable)
     void DeathServer();
-	UFUNCTION(BlueprintCallable,Reliable,NetMulticast)
-    void DeathNetMulticast();
+	
 	//角色跑
 	bool isRuning;
 	UFUNCTION()
     void Run();
 	UFUNCTION(Server, WithValidation, Reliable)
     void RunServer();
-	UFUNCTION(NetMulticast, Reliable)
-    void RunNetMulticast();
+
+	//角色御剑
+	bool bIsFly;
+	UFUNCTION()
+	void Fly();
+	UFUNCTION(Server, WithValidation, Reliable)
+	void FlyServer();
 };
 

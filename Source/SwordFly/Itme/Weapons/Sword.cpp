@@ -22,7 +22,7 @@ ASword::ASword()
 
 void ASword::Attack()
 {
-    AttackServer();
+    AttackServer();     
 }
 
 void ASword::AttackServer_Implementation()
@@ -30,6 +30,10 @@ void ASword::AttackServer_Implementation()
     AttackNetMulticast();
 }
 
+bool ASword::AttackServer_Validate()
+{
+    return true;
+}
 
 void ASword::AttackNetMulticast_Implementation()
 {
@@ -39,46 +43,17 @@ void ASword::AttackNetMulticast_Implementation()
     UAnimInstance* PlayerAnimation = Player->GetMesh()->GetAnimInstance();
     if (PlayerAnimation)
     {
+      
         if (AttackAnimMontage&&PlayerAnimation->IsAnyMontagePlaying()==false) {
-          
+            UE_LOG(LogTemp,Warning,TEXT("Attack %s"),*Player->GetName());
             PlayerAnimation->Montage_Play(AttackAnimMontage);
             PlayerAnimation->Montage_JumpToSection("SwordAttack",AttackAnimMontage);
         }
            
-    }
+    } 
+   
 }
 
-void ASword::SwordAttack()
-{
-    SwordAttackServer();
-}
-
-void ASword::SwordAttackServer_Implementation()
-{
-    SwordAttackNetMulticast();
-}
-
-bool ASword::SwordAttackServer_Validate()
-{
-    return true;
-}
-
-void ASword::SwordAttackNetMulticast_Implementation()
-{
-    if (!GetOwner())return;
-    ASwordFlyCharacter* Player=Cast<ASwordFlyCharacter>(GetOwner());
-    if (!Player)return;
-    UAnimInstance* PlayerAnimation = Player->GetMesh()->GetAnimInstance();
-    if (PlayerAnimation)
-    {
-        if (AttackAnimMontage&&PlayerAnimation->IsAnyMontagePlaying()==false) {
-          
-            PlayerAnimation->Montage_Play(AttackAnimMontage);
-            PlayerAnimation->Montage_JumpToSection("SwordAttack",AttackAnimMontage);
-        }
-           
-    }
-}
 
 EWeaponType ASword::GetWeaponType()
 {
