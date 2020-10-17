@@ -106,6 +106,11 @@ public:
 	void Attack();
 	UFUNCTION(Server,WithValidation,Reliable)
     void AttackServer();
+
+	UFUNCTION(BlueprintCallable)
+    void Attack_2();
+	UFUNCTION(Server,WithValidation,Reliable)
+    void AttackServer_2();
 	
 	//被伤害
 	UFUNCTION(BlueprintCallable)
@@ -126,9 +131,5 @@ public:
 
 	//角色御剑
 	bool bIsFly;
-	UFUNCTION()
-	void Fly();
-	UFUNCTION(Server, WithValidation, Reliable)
-	void FlyServer();
 };
 

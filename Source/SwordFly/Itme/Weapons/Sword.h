@@ -22,7 +22,7 @@ class SWORDFLY_API ASword : public ASwordFlyBaseWeapon
 
     void Attack() override;
 
-    void AttackServer_Implementation()override;
+    virtual void AttackServer_Implementation()override;
 	virtual bool AttackServer_Validate() override;
 	virtual void AttackNetMulticast_Implementation() override;
 	virtual EWeaponType GetWeaponType() override;
@@ -32,5 +32,11 @@ class SWORDFLY_API ASword : public ASwordFlyBaseWeapon
 	UFUNCTION(BlueprintImplementableEvent)
 	void SwordAttackBegin();
 
-	void SwordFly();
+	UFUNCTION(BlueprintCallable)
+	void Attack_2();
+	UFUNCTION(Server,WithValidation,Reliable)
+	void AttackServer_2();
+	UFUNCTION(NetMulticast,Reliable)
+	void AttackNetMulticast_2();
+	//void SwordFly();
 };
