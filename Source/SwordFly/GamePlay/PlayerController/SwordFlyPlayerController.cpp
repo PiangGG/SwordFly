@@ -18,8 +18,7 @@ ASwordFlyPlayerController::ASwordFlyPlayerController()
     bPlayerListDisplayed = false;
     bisInventoryOpen=false;
 
-    isRuning = false;
-
+    UUserWidget_PauseMenu=nullptr;
 }
 
 void ASwordFlyPlayerController::SetupInputComponent()
@@ -84,17 +83,27 @@ void ASwordFlyPlayerController::TogglePauseMenu()
             
             ModeBeforePause = GameInstance->CurrentInputMode;
             bShowCursorBeforePause = GameInstance->bIsShowingMouseCursor;
-
-           
+            if (IsValid(UUserWidget_PauseMenu))
+            {
+                UUserWidget_PauseMenu->AddToViewport();
+            }else
+            {
+                UUserWidget_PauseMenu = CreateWidget<UUserWidget>(GetWorld()->GetFirstPlayerController(), PauseMenu);
+                UUserWidget_PauseMenu->AddToViewport();
+            }
             GameInstance->SetInputMode(EInputMode::EUIAndGame, true);
         }
         else {
-            
+            bShowCursorBeforePause = GameInstance->bIsShowingMouseCursor;
+            if (IsValid(UUserWidget_PauseMenu))
+            {
+                UUserWidget_PauseMenu->RemoveFromParent();
+                UUserWidget_PauseMenu=nullptr;
+            }
             GameInstance->SetInputMode(ModeBeforePause, bShowCursorBeforePause);
             GameInstance->SetInputMode(EInputMode::EGameOnly, false);
         }
     }
-    //UE_LOG(LogTemp, Warning, TEXT("TogglePauseMenu"));
 }
 
 void ASwordFlyPlayerController::ShowPlayerList()
@@ -170,32 +179,4 @@ void ASwordFlyPlayerController::Inventory()
             InfoWBPList->RemoveFromViewport();
         }
     }
-}
-
-void ASwordFlyPlayerController::Run()
-{
-        RunServer();
-}
-
-void ASwordFlyPlayerController::RunNetMulticast_Implementation()
-{
-    //if (!this->IsLocalController())return;
-    if (isRuning) {
-        isRuning = false;
-        GetCharacter()->GetCharacterMovement()->MaxWalkSpeed = 300.f;
-    }
-    else
-    {
-        isRuning = true;
-        GetCharacter()->GetCharacterMovement()->MaxWalkSpeed = 600.f;
-    }
-}
-
-void ASwordFlyPlayerController::RunServer_Implementation()
-{
-    RunNetMulticast();
-}
-bool ASwordFlyPlayerController::RunServer_Validate()
-{
-    return true;
 }

@@ -23,7 +23,7 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,Category="Itme")
+	UPROPERTY(VisibleAnywhere,BlueprintReadWrite,Category="Itme")
 	class UStaticMeshComponent* Mesh1;
 
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,Category="Itme")

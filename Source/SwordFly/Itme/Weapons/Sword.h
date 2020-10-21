@@ -39,4 +39,10 @@ class SWORDFLY_API ASword : public ASwordFlyBaseWeapon
 	UFUNCTION(NetMulticast,Reliable)
 	void AttackNetMulticast_2();
 	//void SwordFly();
+	//攻击
+	int32 AttackNumber;
+
+	FTimerHandle TimerHandle_AttackNumberCtrl;
+
+	void AttackNumberCtrl();
 };

@@ -19,7 +19,7 @@ ASword::ASword()
     Collision_Capsule=CreateDefaultSubobject<UCapsuleComponent>(FName("Collision_Capsule"));
     Collision_Capsule->SetupAttachment(RootComponent);
     ActorID=2;
-    
+    AttackNumber=0;
 }
 
 void ASword::Attack()
@@ -45,15 +45,44 @@ void ASword::AttackNetMulticast_Implementation()
     UAnimInstance* PlayerAnimation = Player->GetMesh()->GetAnimInstance();
     if (PlayerAnimation)
     {
-      
         if (AttackAnimMontage&&PlayerAnimation->IsAnyMontagePlaying()==false) {
             UE_LOG(LogTemp,Warning,TEXT("Attack %s"),*Player->GetName());
-            PlayerAnimation->Montage_Play(AttackAnimMontage);
-            PlayerAnimation->Montage_JumpToSection("SwordAttack",AttackAnimMontage);
+          
+            switch (AttackNumber)
+            {
+            case 0:
+                {
+                    AttackNumber++;
+                    PlayerAnimation->Montage_Play(AttackAnimMontage);
+                    PlayerAnimation->Montage_JumpToSection("SwordAttack1",AttackAnimMontage);
+                    break;
+                }
+            case 1:
+                {
+                    AttackNumber++;
+                    PlayerAnimation->Montage_Play(AttackAnimMontage);
+                    PlayerAnimation->Montage_JumpToSection("SwordAttack2",AttackAnimMontage);
+                    break;
+                }
+            case 2:
+                {
+                    AttackNumber=0;
+                    PlayerAnimation->Montage_Play(AttackAnimMontage);
+                    PlayerAnimation->Montage_JumpToSection("SwordAttack3",AttackAnimMontage);
+                    break;
+                }
+            default:
+                PlayerAnimation->Montage_Play(AttackAnimMontage);
+                PlayerAnimation->Montage_JumpToSection("SwordAttack1",AttackAnimMontage);
+                break;
+            }
+            GetWorldTimerManager().ClearTimer(TimerHandle_AttackNumberCtrl);
+            GetWorldTimerManager().SetTimer(TimerHandle_AttackNumberCtrl,this, &ASword::AttackNumberCtrl, 0.5, false
+              , 3.f);
         }
            
     } 
-   
+    
 }
 
 
@@ -73,10 +102,14 @@ void ASword::Attack_2()
     {
         AttackServer_2();
     }
-
+    
     //获取拥有者角色
     ASwordFlyCharacter *Player=Cast<ASwordFlyCharacter>(GetOwner());
     if (!Player)return;
+    if ( Player->GetCharacterMovement()->IsFalling()==true|| Player->GetReplicatedMovementMode()==EMovementMode::MOVE_Flying)
+        {
+   
+   
     if (Player->bIsFly)
     {
         Player->bIsFly=false;
@@ -90,6 +123,7 @@ void ASword::Attack_2()
         }
     }else if (!Player->bIsFly)
     {
+       
         Player->bIsFly=true;
         Player->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Flying);
         Player->SetCharacterState(ECharacterState::ESwordFly);
@@ -100,6 +134,12 @@ void ASword::Attack_2()
         this->AttachToComponent(Player->GetMesh(),FAttachmentTransformRules::SnapToTargetNotIncludingScale,FName());
         this->SetActorScale3D(FVector(1)*3);
     }
+}
+}
+
+void ASword::AttackNumberCtrl()
+{
+    AttackNumber=0;
 }
 
 void ASword::AttackNetMulticast_2_Implementation()

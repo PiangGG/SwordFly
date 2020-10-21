@@ -30,7 +30,17 @@ class SWORDFLY_API ABow : public ASwordFlyBaseWeapon
 	void ShootServer();
 	UFUNCTION(Reliable,NetMulticast)
 	void ShootNetMulticast();
-	
+
+	UFUNCTION(BlueprintCallable)
+    void Attack_2();
+	UFUNCTION(Server,WithValidation,Reliable)
+    void AttackServer_2();
+	UFUNCTION(NetMulticast,Reliable)
+    void AttackNetMulticast_2();
+
+	bool bIsArming;
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly)
-	TSubclassOf<class AArrow> ArrowClass;
+	TSubclassOf<class AArrow2> ArrowClass;
+	UPROPERTY(EditDefaultsOnly,BlueprintReadWrite)
+	float ArrowForce;
 };

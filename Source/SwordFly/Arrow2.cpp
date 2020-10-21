@@ -21,11 +21,20 @@ AArrow2::AArrow2()
 	RootComponent=AttackComp;
 	AttackComp->SetSimulatePhysics(true);
 	AttackComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	AttackComp->SetCollisionResponseToChannels(ECR_Overlap);
-	Mesh1=CreateDefaultSubobject<UStaticMeshComponent>(FName("Name"));
+	AttackComp->SetCollisionResponseToChannels(ECR_Block);
+	//AttackComp->SetCollisionResponseToChannels(ECR_Overlap);
+	Mesh1=CreateDefaultSubobject<UStaticMeshComponent>(FName("Mesh1"));
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> objFinder(TEXT("StaticMesh'/Game/Mesh/Arrow01SM.Arrow01SM'"));
+	Mesh1->SetStaticMesh(objFinder.Object);
+	
+	Mesh1->SetRelativeLocation(FVector(-120,0,0));
+	Mesh1->SetRelativeRotation(FRotator(0,180,0));
+	Mesh1->SetupAttachment(AttackComp);
+	
 	Mesh1->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	Mesh1->SetCollisionResponseToChannels(ECR_Ignore);
 	Mesh1->SetSimulatePhysics(false);
+	Mesh1->SetEnableGravity(false);
 	AttackComp->OnComponentHit.AddDynamic(this,&AArrow2::OnHitOther);
 
 	TimeLiva=10.f;

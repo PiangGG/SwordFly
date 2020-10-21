@@ -68,15 +68,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Platformer Player Controller")
     void HideAllMenus();
 
-	
-
-	bool isRuning;
-	UFUNCTION()
-	void Run();
-
-	UFUNCTION(Server, WithValidation, Reliable)
-	void RunServer();
-
-	UFUNCTION(NetMulticast, Reliable)
-	void RunNetMulticast();
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Player")
+	TSubclassOf<class UUserWidget> PauseMenu;
+	UUserWidget *UUserWidget_PauseMenu;
 };

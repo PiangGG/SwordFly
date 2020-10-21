@@ -445,7 +445,7 @@ void ASwordFlyCharacter::Attack_2()
 					
 				if (thisWeapon)
 				{
-					thisWeapon->Attack();
+					thisWeapon->Attack_2();
 				}
 				break;
 			}
@@ -491,15 +491,31 @@ void ASwordFlyCharacter::Run()
 	{
 		RunServer();
 	}
-	if (isRuning) {
-		isRuning = false;
-		this->GetCharacterMovement()->MaxWalkSpeed = 300.f;
-	}
-	else
+	if (bIsFly)
 	{
-		isRuning = true;
-		this->GetCharacterMovement()->MaxWalkSpeed = 600.f;
+		if (isRuning) {
+			isRuning = false;
+			
+			this->GetCharacterMovement()->MaxFlySpeed/=2.f;
+		}
+		else
+		{
+			isRuning = true;
+			this->GetCharacterMovement()->MaxFlySpeed*=2.f;
+		}
+	}else
+	{
+		if (isRuning) {
+			isRuning = false;
+			this->GetCharacterMovement()->MaxWalkSpeed = 300.f;
+		}
+		else
+		{
+			isRuning = true;
+			this->GetCharacterMovement()->MaxWalkSpeed = 600.f;
+		}
 	}
+	
 }
 
 void ASwordFlyCharacter::RunServer_Implementation()
