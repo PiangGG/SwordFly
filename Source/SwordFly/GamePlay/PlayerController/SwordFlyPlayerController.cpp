@@ -149,6 +149,16 @@ void ASwordFlyPlayerController::HideAllMenus()
     }
 }
 
+void ASwordFlyPlayerController::CharacterDeath()
+{
+    HideAllMenus();
+    UUserWidget_Death = CreateWidget<UUserWidget>(GetWorld()->GetFirstPlayerController(), Death);
+    if (UUserWidget_Death)
+    {
+        UUserWidget_Death->AddToViewport();
+    }
+}
+
 void ASwordFlyPlayerController::Inventory()
 {
     if (!bisInventoryOpen)

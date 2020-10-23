@@ -64,6 +64,7 @@ ASwordFlyCharacter::ASwordFlyCharacter()
 
 	PlayerWeaponArray= TArray<ASwordFlyBaseWeapon*>();
 	PlayerItemArray=TArray<ABaseItem*>();
+	
 }
 
 void ASwordFlyCharacter::BeginPlay()
@@ -75,6 +76,7 @@ void ASwordFlyCharacter::BeginPlay()
 	{
 		GetCharacterMovement()->MaxWalkSpeed = PS->PlayerSpeed;
 	}
+	this->OnTakeAnyDamage.AddDynamic(this,&ASwordFlyCharacter::OnthisActorTakeAnyDamage);
 }
 
 
@@ -180,6 +182,10 @@ void ASwordFlyCharacter::ChangeCameraHeight(float amount)
 		rot = FVector(0, originalHeight, rot.Z);
 		SpringArmComp->SetWorldRotation(FQuat::MakeFromEuler(rot));
 	}
+}
+
+void ASwordFlyCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
 }
 
 ECharacterState ASwordFlyCharacter::GetCharacterState()
@@ -485,6 +491,11 @@ void ASwordFlyCharacter::ReceiveDamage(float var)
 	}
 }
 
+inline void ASwordFlyCharacter::OnthisActorTakeAnyDamage(AActor* DamagedActor, float Damage,
+                                              const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser)
+{
+	this->ReceiveDamage(Damage);
+}
 void ASwordFlyCharacter::Run()
 {
 	if (GetLocalRole()<ROLE_Authority)
@@ -534,8 +545,21 @@ void ASwordFlyCharacter::Death()
 	{
 		DeathServer();
 	}
-	GetMesh()->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
-	GetController()->UnPossess();
+	ASwordFlyPlayerController *PC=Cast<ASwordFlyPlayerController>(GetWorld()->GetFirstPlayerController());
+	if (PC&&PC->IsLocalController())
+	{
+		UE_LOG(LogTemp,Warning,TEXT("Death2 %s"),*this->GetName())
+		PC->CharacterDeath();
+		GetMesh()->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
+		PC->UnPossess();
+		this->Destroy();
+	}
+	
+	/*ASwordFlyGameStateBase *GS=Cast<ASwordFlyGameStateBase>(GetWorld()->GetGameState());
+	if (GS)
+	{
+		GS->ChangeState(EMatchState::ENotConnected);	
+	}*/	
 }
 
 
@@ -547,4 +571,13 @@ void ASwordFlyCharacter::DeathServer_Implementation()
 bool ASwordFlyCharacter::DeathServer_Validate()
 {
 	return true;
+}
+
+FVector ASwordFlyCharacter::GetPawnViewLocation() const
+{
+	if (TiredCamera)
+	{
+		return TiredCamera->GetComponentLocation();
+	}
+	return Super::GetPawnViewLocation();
 }

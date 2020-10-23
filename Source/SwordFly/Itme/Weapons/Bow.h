@@ -40,7 +40,7 @@ class SWORDFLY_API ABow : public ASwordFlyBaseWeapon
 
 	bool bIsArming;
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly)
-	TSubclassOf<class AArrow2> ArrowClass;
+	TSubclassOf<class AArrow> ArrowClass;
 	UPROPERTY(EditDefaultsOnly,BlueprintReadWrite)
 	float ArrowForce;
 };

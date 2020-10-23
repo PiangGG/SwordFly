@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "GameFramework/ProjectileMovementComponent.h"
+
 #include "Arrow2.generated.h"
 
 UCLASS()
@@ -26,10 +28,13 @@ public:
 	UPROPERTY(VisibleAnywhere,BlueprintReadWrite,Category="Itme")
 	class UStaticMeshComponent* Mesh1;
 
+	UPROPERTY(VisibleAnywhere,BlueprintReadWrite,Category="Itme")
+	class UProjectileMovementComponent *MovementComponent; 
+	
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,Category="Itme")
 	class USphereComponent* AttackComp;
 
-	UFUNCTION(Server,Reliable,WithValidation)
+	//UFUNCTION(Server,Reliable,WithValidation)
 	void OnHitOther(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
     FVector NormalImpulse, const FHitResult& Hit);
 

@@ -10,18 +10,23 @@
 #include "UObject/ConstructorHelpers.h"
 #include "Components/SphereComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "GameFramework/ProjectileMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
 // Sets default values
 AArrow2::AArrow2()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-
+	
+	
 	AttackComp=CreateDefaultSubobject<USphereComponent>(FName("AttackComp"));
-
-	RootComponent=AttackComp;
-	AttackComp->SetSimulatePhysics(true);
+	RootComponent = AttackComp;
+	AttackComp->SetSimulatePhysics(false);
 	AttackComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	AttackComp->SetCollisionResponseToChannels(ECR_Block);
+	AttackComp->SetCollisionResponseToChannels(ECR_Overlap);
+	
+	MovementComponent=CreateDefaultSubobject<UProjectileMovementComponent>(FName("MovementComponent"));
+	MovementComponent->SetUpdatedComponent(AttackComp);
 	//AttackComp->SetCollisionResponseToChannels(ECR_Overlap);
 	Mesh1=CreateDefaultSubobject<UStaticMeshComponent>(FName("Mesh1"));
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> objFinder(TEXT("StaticMesh'/Game/Mesh/Arrow01SM.Arrow01SM'"));
@@ -33,9 +38,9 @@ AArrow2::AArrow2()
 	
 	Mesh1->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	Mesh1->SetCollisionResponseToChannels(ECR_Ignore);
-	Mesh1->SetSimulatePhysics(false);
-	Mesh1->SetEnableGravity(false);
-	AttackComp->OnComponentHit.AddDynamic(this,&AArrow2::OnHitOther);
+	Mesh1->SetSimulatePhysics(true);
+	Mesh1->SetEnableGravity(true);
+	//AttackComp->OnComponentHit.AddDynamic(this,&AArrow2::OnHitOther);
 
 	TimeLiva=10.f;
 	
@@ -59,23 +64,20 @@ void AArrow2::Tick(float DeltaTime)
 		this->Destroy();
 	}
 }
-void AArrow2::OnHitOther_Implementation(UPrimitiveComponent* HitComponent, AActor* OtherActor,
+void AArrow2::OnHitOther(UPrimitiveComponent* HitComponent, AActor* OtherActor,
     UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
 	
-	if (GetLocalRole()!=ROLE_Authority)return;
+	//if (GetLocalRole()!=ROLE_Authority)return;
 	UE_LOG(LogTemp, Warning, TEXT("OnHitActorServer_Implementation"));
 	ASwordFlyCharacter* Charactered=Cast<ASwordFlyCharacter>(OtherActor);
-	if (Charactered)
+	ASwordFlyCharacter* thisOwer=Cast<ASwordFlyCharacter>(GetWorld()->GetFirstPlayerController()->GetCharacter());
+	
+	if (Charactered&&thisOwer&&thisOwer!=Charactered)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("OnHitActorServer_Implementation1"));
-		Charactered->ReceiveDamage(20.f);
+		UGameplayStatics::ApplyDamage(Charactered,20.f,GetOwner()->GetInstigatorController(),this,UDamageType::StaticClass());
+		
 		this->Destroy();
 	}
-}
-
-bool AArrow2::OnHitOther_Validate(UPrimitiveComponent* HitComponent, AActor* OtherActor,
-    UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
-{
-	return true;
 }

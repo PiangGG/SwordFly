@@ -15,4 +15,9 @@ class SWORDFLY_API ASwordFlyGameModeBase : public AGameModeBase
 	GENERATED_BODY()
 	public:
 	ASwordFlyGameModeBase();
+
+	virtual void Logout(AController* Exiting) override;
+
+	virtual void Tick(float DeltaSeconds) override;
 };
+

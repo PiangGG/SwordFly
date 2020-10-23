@@ -61,6 +61,8 @@ public:
 	void RotateCamera(float amount);
 
 	void ChangeCameraHeight(float amount);
+
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	//控制角色状态
 	UFUNCTION(BlueprintCallable)
 	ECharacterState GetCharacterState();
@@ -115,10 +117,16 @@ public:
 	//被伤害
 	UFUNCTION(BlueprintCallable)
 	void ReceiveDamage(float var);
-
+	UFUNCTION()
+	void OnthisActorTakeAnyDamage(AActor* DamagedActor, float Damage,
+                                              const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser);
+	
 	//virtual void recae
 	UFUNCTION(BlueprintCallable)
 	void Death();
+	
+	virtual FVector GetPawnViewLocation() const override;
+	
 	UFUNCTION(BlueprintCallable,Server,WithValidation,Reliable)
     void DeathServer();
 	
@@ -131,5 +139,6 @@ public:
 
 	//角色御剑
 	bool bIsFly;
+
 };
 

@@ -33,4 +33,7 @@ class SWORDFLY_API AArrow : public ASwordFlyBaseWeapon
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly)
 	float TimeLive;
 	virtual void Tick(float DeltaSeconds) override;
+
+	UPROPERTY(VisibleAnywhere,BlueprintReadWrite,Category="Itme")
+	class UProjectileMovementComponent *MovementComponent; 
 };

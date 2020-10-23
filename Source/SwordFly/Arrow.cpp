@@ -6,6 +6,7 @@
 #include "Components/SphereComponent.h"
 #include "SwordFly/GamePlay/Character/SwordFlyCharacter.h"
 #include "Camera/CameraComponent.h"
+#include "GameFramework/ProjectileMovementComponent.h"
 #include "GamePlay/PlayerState/SwordFlyPlayerState.h"
 #include "UObject/ConstructorHelpers.h"
 
@@ -29,6 +30,10 @@ AArrow::AArrow()
     DamageVar=20.f;
     ActorID=4;
     TimeLive=10.f;
+
+    MovementComponent=CreateDefaultSubobject<UProjectileMovementComponent>(FName("MovementComponent"));
+    MovementComponent->SetUpdatedComponent(RootComponent);
+    
 }
 
 void AArrow::Collision_Pack_BeginOverlap(UPrimitiveComponent* Component, AActor* OtherActor,

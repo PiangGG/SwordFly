@@ -71,4 +71,11 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Player")
 	TSubclassOf<class UUserWidget> PauseMenu;
 	UUserWidget *UUserWidget_PauseMenu;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Player")
+	TSubclassOf<class UUserWidget> Death;
+	UUserWidget *UUserWidget_Death;
+
+	UFUNCTION(BlueprintCallable, Category = "Platformer Player Controller")
+    void CharacterDeath();
 };

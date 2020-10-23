@@ -45,17 +45,13 @@ void ASwordFlyPlayerState::CollectHeart(float var)
 
 void ASwordFlyPlayerState::ReceiveDamage(float var)
 {
-    //UE_LOG(LogTemp, Warning, TEXT("ReceiveDamagePlayerState"));
+   
     CurrentHealth -= var;
     CurrentHealth = FMath::Clamp(CurrentHealth, 0.f, MaxHealth);
-    if (CurrentHealth<=0)
+    ASwordFlyCharacter *Player=Cast<ASwordFlyCharacter>(GetWorld()->GetFirstPlayerController()->GetCharacter());
+    if (CurrentHealth<=0.f&&Player)
     {
-        ASwordFlyCharacter *Player=Cast<ASwordFlyCharacter>(GetWorld()->GetFirstPlayerController()->GetCharacter());
-        if (Player)
-        {
-            Player->Death();
-            
-        }
+        Player->Death();
     }
 }
 

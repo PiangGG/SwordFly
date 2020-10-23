@@ -68,6 +68,7 @@ void ABow::BeginPlay()
 {
     Super::BeginPlay();
     ASwordFlyBaseWeapon::SetWeaponType(EWeaponType::EBow);
+    
 }
 
 EWeaponType ABow::GetWeaponType()
@@ -83,17 +84,26 @@ void ABow::Shoot()
         UWorld* World=GetWorld();
         if (World&&GetNetOwner())
         {
-            ASwordFlyCharacter *thisOwnert1=Cast<ASwordFlyCharacter>(GetOwner());
+            ASwordFlyCharacter *thisOwnert1=Cast<ASwordFlyCharacter>(GetWorld()->GetFirstPlayerController()->GetCharacter());
             if (thisOwnert1)
             {
                 if (thisOwnert1->GetController())
                 {
                     FActorSpawnParameters ActorSpawnParameters;
                     ActorSpawnParameters.SpawnCollisionHandlingOverride=ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-                    AArrow2* thisAArrow=World->SpawnActor<AArrow2>(ArrowClass,Mesh->GetSocketLocation("ShootSocket"),thisOwnert1->TiredCamera->GetForwardVector().Rotation(),ActorSpawnParameters);
+
+                    FVector eyelocation;
+                    FRotator eyeRotator;
+                    thisOwnert1->GetActorEyesViewPoint(eyelocation,eyeRotator);
+                    
+                    AArrow* thisAArrow=World->SpawnActor<AArrow>(ArrowClass,thisOwnert1->GetMesh()->GetSocketLocation("ShootSocket"),eyeRotator,ActorSpawnParameters);
+                    
                     if (thisAArrow)
-                    { 
-                        thisAArrow->AttackComp->AddForce(thisOwnert1->TiredCamera->GetForwardVector()*ArrowForce);
+                    {
+                        thisAArrow->SetOwner(thisOwnert1);
+                       
+                        //thisAArrow->MovementComponent->AddForce(thisOwnert1->TiredCamera->GetForwardVector()*ArrowForce);
+                        //thisAArrow->AttackComp->AddForce(thisOwnert1->TiredCamera->GetForwardVector()*ArrowForce);
                         //DrawDebugLine(GetWorld(),GetNetOwner()->GetActorLocation(),GetNetOwner()->GetActorForwardVector()+200.f,FColor::Blue,true,10.f);
                     }
                 }
