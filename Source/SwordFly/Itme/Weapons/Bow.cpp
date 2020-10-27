@@ -82,9 +82,9 @@ void ABow::Shoot()
     if (GetLocalRole()==ROLE_Authority)
     {
         UWorld* World=GetWorld();
-        if (World&&GetNetOwner())
+        if (World&&GetOwner())
         {
-            ASwordFlyCharacter *thisOwnert1=Cast<ASwordFlyCharacter>(GetWorld()->GetFirstPlayerController()->GetCharacter());
+            ASwordFlyCharacter *thisOwnert1=Cast<ASwordFlyCharacter>(GetOwner());
             if (thisOwnert1)
             {
                 if (thisOwnert1->GetController())
@@ -92,16 +92,16 @@ void ABow::Shoot()
                     FActorSpawnParameters ActorSpawnParameters;
                     ActorSpawnParameters.SpawnCollisionHandlingOverride=ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
-                    FVector eyelocation;
-                    FRotator eyeRotator;
-                    thisOwnert1->GetActorEyesViewPoint(eyelocation,eyeRotator);
                     
-                    AArrow* thisAArrow=World->SpawnActor<AArrow>(ArrowClass,thisOwnert1->GetMesh()->GetSocketLocation("ShootSocket"),eyeRotator,ActorSpawnParameters);
+                    
+                    AArrow* thisAArrow=World->SpawnActor<AArrow>(ArrowClass,thisOwnert1->GetMesh()->GetSocketLocation("ShootSocket"),thisOwnert1->TiredCamera->GetComponentRotation(),ActorSpawnParameters);
                     
                     if (thisAArrow)
                     {
                         thisAArrow->SetOwner(thisOwnert1);
-                       
+                        /*thisAArrow->Mesh->SetCollisionResponseToChannels(ECR_Ignore);
+                        thisAArrow->Mesh->SetSimulatePhysics(false);*/
+                        //thisAArrow->AttachToComponent(thisOwnert1->GetMesh(),FAttachmentTransformRules::SnapToTargetNotIncludingScale,"ShootSocket");
                         //thisAArrow->MovementComponent->AddForce(thisOwnert1->TiredCamera->GetForwardVector()*ArrowForce);
                         //thisAArrow->AttackComp->AddForce(thisOwnert1->TiredCamera->GetForwardVector()*ArrowForce);
                         //DrawDebugLine(GetWorld(),GetNetOwner()->GetActorLocation(),GetNetOwner()->GetActorForwardVector()+200.f,FColor::Blue,true,10.f);
@@ -113,12 +113,8 @@ void ABow::Shoot()
 }
 
 void ABow::Attack_2()
-{
-    
-    AttackNetMulticast_2();
-
-   
-    
+{ 
+    AttackNetMulticast_2();  
 }
 
 void ABow::AttackNetMulticast_2_Implementation()

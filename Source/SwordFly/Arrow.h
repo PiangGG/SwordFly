@@ -20,11 +20,8 @@ class SWORDFLY_API AArrow : public ASwordFlyBaseWeapon
 	virtual void Collision_Pack_BeginOverlap(UPrimitiveComponent* Component, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) override;
 
 	UFUNCTION()
-        void OnHitActor(UPrimitiveComponent * HitComponent, AActor *OtherActor, UPrimitiveComponent* OtherComp
-            , FVector NormalImpulse, const FHitResult &Hit);
-	UFUNCTION(Server,WithValidation,Reliable)
-	void OnHitActorServer(UPrimitiveComponent * HitComponent, AActor *OtherActor, UPrimitiveComponent* OtherComp
-            , FVector NormalImpulse, const FHitResult &Hit);
+    void OnHitActor(AActor* SelfActor, AActor* OtherActor, FVector NormalImpulse, const FHitResult& Hit);
+	
 	UPROPERTY(BlueprintReadOnly,EditDefaultsOnly)
 	float DamageVar;
 
@@ -32,6 +29,9 @@ class SWORDFLY_API AArrow : public ASwordFlyBaseWeapon
 
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly)
 	float TimeLive;
+
+	bool bIsShoot;
+	
 	virtual void Tick(float DeltaSeconds) override;
 
 	UPROPERTY(VisibleAnywhere,BlueprintReadWrite,Category="Itme")

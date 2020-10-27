@@ -186,6 +186,7 @@ void ASwordFlyCharacter::ChangeCameraHeight(float amount)
 
 void ASwordFlyCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
+	
 }
 
 ECharacterState ASwordFlyCharacter::GetCharacterState()
@@ -380,9 +381,13 @@ void ASwordFlyCharacter::Attack()
 	{
 		AttackServer();	
 	}
+	
 	if (!GetController())return;
+	GetMesh()->SetWorldRotation(FRotator(GetMesh()->GetComponentRotation().Pitch,GetMesh()->GetComponentRotation().Yaw,TiredCamera->GetComponentRotation().Roll));
 	if (bIsFly&&PlayerWeaponArray.IsValidIndex(1))
 	{
+		
+		
 		ABow *thisWeapon=Cast<ABow>(PlayerWeaponArray[1]);
 		if (thisWeapon)
 		{
@@ -392,7 +397,8 @@ void ASwordFlyCharacter::Attack()
 	}
 	if (PlayerWeaponArray.IsValidIndex(0))
 	{
-		
+		GetCharacterMovement()->bOrientRotationToMovement = !GetCharacterMovement()->bOrientRotationToMovement;
+		bUseControllerRotationRoll = !bUseControllerRotationRoll;
 		switch (PlayerWeaponArray[0]->GetWeaponType())
 		{
 			
@@ -432,6 +438,8 @@ void ASwordFlyCharacter::Attack_2()
 	}
 	if (PlayerWeaponArray.IsValidIndex(0))
 	{
+		GetCharacterMovement()->bOrientRotationToMovement = !GetCharacterMovement()->bOrientRotationToMovement;
+		bUseControllerRotationRoll = !bUseControllerRotationRoll;
 		switch (PlayerWeaponArray[0]->GetWeaponType())
 		{
 			
@@ -451,6 +459,7 @@ void ASwordFlyCharacter::Attack_2()
 					
 				if (thisWeapon)
 				{
+					
 					thisWeapon->Attack_2();
 				}
 				break;
